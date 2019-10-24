@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <!-- Command classes -->
+
+        <service id="cdev.docker_setup" class="Cdev\Docker\Environment\Command\SetupEnvCommand">
+            <argument type="service" id="environment.type.docker" />
+            <argument type="service" id="cdev.system_composer" />
+            <argument type="service" id="symfony.filesystem" />
+        </service>
+
+        <service id="cdev.docker_container_mysql" class="Cdev\Docker\Environment\Command\Container\Mysql">
+            <argument type="service" id="symfony.filesystem" />
+        </service>
+
+        <service id="cdev.docker_container_php"
+            class="Cdev\Docker\Environment\Command\Container\Php">
+        </service>
+
+        <service id="cdev.docker_container_mailcatcher"
+            class="Cdev\Docker\Environment\Command\Container\Mailcatcher">
+        </service>
+
+        <service id="cdev.docker_container_redis"
+            class="Cdev\Docker\Environment\Command\Container\Redis">
+        </service>
+
+        <service id="cdev.docker_container_drush"
+            class="Cdev\Docker\Environment\Command\Container\Drush">
+        </service>
+
+
+        <!-- Environments -->
+
+        <service id="environment.type.docker" class="Cdev\Docker\Environment\Docker">
+            <argument type="service" id="cdev.system_docker" />
+            <argument type="service" id="cdev.system_docker_compose" />
+            <argument type="service" id="cdev.system_docker_sync" />
+            <argument type="service" id="cdev.environment.framework" />
+            <argument type="service" id="cdev.config" />
+        </service>
+
+
+        <!-- System commands -->
+
+        <service id="cdev.system_docker"
+            class="Cdev\Docker\Environment\System\Docker">
+        </service>
+
+        <service id="cdev.system_docker_compose"
+            class="Cdev\Docker\Environment\System\Compose\Compose">
+        </service>
+
+        <service id="cdev.system_docker_sync"
+            class="Cdev\Docker\Environment\System\Sync\Sync">
+        </service>
+        
+    </services>
+</container>
