@@ -3,9 +3,6 @@
 namespace Cdev\Local\Environment;
 
 use Creode\Cdev\Config;
-use Cdev\Local\Environment\System\Compose\Compose;
-use Cdev\Local\Environment\System\Local as SystemLocal;
-use Cdev\Local\Environment\System\Sync\Sync;
 use Creode\Environment\Environment;
 use Creode\Framework\Framework;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,27 +11,12 @@ class Local extends Environment
 {
     const NAME = 'local';
     const LABEL = 'Local';
-    const COMMAND_NAMESPACE = 'local';
-    
-    /**
-     * @var SystemLocal
-     */
-    private $_local;
+    const COMMAND_NAMESPACE = 'brew';
 
     /**
-     * @var Compose
+     * @var Framework
      */
-    private $_compose;
-
-    /**
-     * @var Sync
-     */
-    private $_sync;
-
-    /**
-     * @var ConsoleLogger
-     */
-    private $_logger;
+    protected $_framework;
 
     /**
      * @var Config
@@ -42,47 +24,16 @@ class Local extends Environment
     private $_config;
 
     /**
-     *  @var InputInterface
-     */
-    private $_input;
-
-    /**
-     * @var boolean
-     */
-    private $_usingLocalSync = false;
-
-    /**
-     * @var string
-     */
-    private $_networkName;
-
-    /**
-     * @param SystemLocal $local
-     * @param Compose $compose 
-     * @param Sync $sync 
      * @param Framework $framework
      * @param Config $config
      * @return null
      */
     public function __construct(
-        SystemLocal $local,
-        Compose $compose,
-        Sync $sync,
         Framework $framework,
         Config $config
     ) {
-        $this->_local = $local;
-        $this->_compose = $compose;
-        $this->_sync = $sync;
         $this->_framework = $framework;
         $this->_config = $config;
-
-        $conf = $this->_config->get('local', false);
-
-        $this->_networkName = isset($conf['name']) ? $conf['name'] : 'unknown';
-        $this->_compose->setNetwork($this->_networkName);
-
-        $this->_usingLocalSync = isset($conf['sync']['active']) && $conf['sync']['active'];
     }
 
     /**
@@ -98,141 +49,56 @@ class Local extends Environment
     public function start()
     {
         $this->logTitle('Starting dev environment...');
-
-        $path = $this->_input->getOption('path');
-        $build = $this->_input->getOption('build');
-        $update = $this->_input->getOption('update');
-        
-
-        if ($this->_usingLocalSync) {
-            $this->_sync->start($path);
-        }
-
-        if ($update) {
-            $this->_compose->pullImages($path);
-        }
-
-        $this->_compose->up($path, $build);
+        echo $this::COMMAND_NAMESPACE;
+        $this->displayInstallationMessage();
     }
 
     public function stop()
     {
         $this->logTitle('Stopping dev environment...');
-
-        $path = $this->_input->getOption('path');
-
-        $this->_compose->stop($path);
- 
-        if ($this->_usingLocalSync) {
-            $this->_sync->stop($path);
-        }
+        $this->displayInstallationMessage();
     }
 
     public function nuke()
     {
+        // TODO: Decide on what to do here. Do we remove the site from configuration 
+        // or just state that it's not supported.
         $this->logTitle('Nuking dev environment...');
-
-        $path = $this->_input->getOption('path');
-
-        $this->_compose->stop($path);
-        $this->_compose->rm($path);
-
-        if ($this->_usingLocalSync) {
-            $this->_sync->clean($path);
-        }
-
-        $this->cleanup();
+        $this->displayInstallationMessage();
     }
 
     public function status()
     {
         $this->logTitle('Environment status');
-
-        $path = $this->_input->getOption('path');
-
-        $this->_compose->ps($path);
- 
-        if ($this->_usingLocalSync) {
-            $this->_sync->listSyncPoints($path);
-        }
+        $this->displayInstallationMessage();
     }
 
     public function cleanup()
     {
-        $this->logTitle('Cleaning up Local leftovers...');
-
-        $path = $this->_input->getOption('path');
-
-        $this->_local->cleanup($path);
+        $this->logTitle('Cleaning up Docker leftovers...');
+        $this->displayInstallationMessage();
     }
 
     public function ssh()
     {
         $this->logTitle('Connecting to server...');
-
-        $path = $this->_input->getOption('path');
-        $user = $this->_input->getOption('user');
-
-        $this->logMessage("Connecting as $user");
-
-        $this->_compose->ssh($path, $user);
+        $this->displayInstallationMessage();
     }
 
     public function dbConnect()
     {
         $this->logTitle('Connecting to database...');
-
-        $path = $this->_input->getOption('path');
-        $database = $this->_input->getOption('database');
-        $user = $this->_input->getOption('user');
-        $password = $this->_input->getOption('password');
-
-        $this->logMessage("Connecting to $database as $user");
-
-        $this->_compose->dbConnect($path, $database, $user, $password);
+        $this->displayInstallationMessage();
     }
 
-    /**
-     * Runs a command on the local-compose php container
-     * @param array $command 
-     * @param bool $elevatePermissions 
-     * @return null
-     */
     public function runCommand(array $command = array(), $elevatePermissions = false)
     {
-        $path = $this->_input->getOption('path');
-
-        $command = array_merge(
-            [
-                'exec',
-                '--user=' . ($elevatePermissions ? 'root' : 'www-data'),
-                'php'
-            ],
-            $command
-        );
-        
-        $this->_compose->runCmd(
-            $path,
-            $command
-        );
+        $this->logTitle('Running command...');
+        $this->displayInstallationMessage();
     }
 
-
-    /**
-     * Returns local compose system object
-     * @return Compose
-     */
-    public function getCompose()
+    public function displayInstallationMessage()
     {
-        return $this->_compose;
-    }
-
-    /**
-     * Returns local sync system object
-     * @return Sync
-     */
-    public function getSync()
-    {
-        return $this->_sync;
+        throw new \Exception('This command is currently not supported in this environment.');
     }
 }
