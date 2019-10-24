@@ -1,11 +1,11 @@
 <?php
-namespace Cdev\Docker\Environment\Command;
+namespace Cdev\Local\Environment\Command;
 
 use Creode\Cdev\Command\ConfigurationCommand;
 use Creode\Cdev\Config;
-use Cdev\Docker\Environment\Docker;
-use Cdev\Docker\Environment\System\Compose\Compose;
-use Cdev\Docker\Environment\System\Sync\Sync;
+use Cdev\Local\Environment\Local;
+use Cdev\Local\Environment\System\Compose\Compose;
+use Cdev\Local\Environment\System\Sync\Sync;
 use Creode\System\Composer\Composer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -24,7 +24,7 @@ class SetupEnvCommand extends ConfigurationCommand
 {
     protected $_config = [
         'config' => [
-            'docker' => [
+            'local' => [
                 'name' => null,
                 'package' => null,
                 'port' => null,
@@ -126,9 +126,9 @@ class SetupEnvCommand extends ConfigurationCommand
     private $_usingLocalBuilds = false;
 
     /**
-     * @var Docker
+     * @var Local
      */
-    protected $_docker;
+    protected $_local;
 
     /**
      * @var Composer
@@ -142,16 +142,16 @@ class SetupEnvCommand extends ConfigurationCommand
 
     /**
      * Constructor
-     * @param Docker $docker
+     * @param Local $local
      * @param Composer $composer
      * @return null
      */
     public function __construct(
-        Docker $docker,
+        Local $local,
         Composer $composer,
         Filesystem $fs
     ) {
-        $this->_docker = $docker;
+        $this->_local = $local;
         $this->_composer = $composer;
         $this->_fs = $fs;
 
@@ -160,9 +160,9 @@ class SetupEnvCommand extends ConfigurationCommand
 
     protected function configure()
     {
-        $this->setName('docker:setup');
+        $this->setName('local:setup');
         $this->setHidden(true);
-        $this->setDescription('Sets up the docker environment config');
+        $this->setDescription('Sets up the local environment config');
 
         $this->addOption(
             'path',
@@ -201,25 +201,25 @@ class SetupEnvCommand extends ConfigurationCommand
     {
         $helper = $this->getHelper('question');
 
-        $default = $this->_config['config']['docker']['name'];
+        $default = $this->_config['config']['local']['name'];
         $question = new Question(
-            '<question>Project name/domain (xxxx).docker</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
+            '<question>Project name/domain (xxxx).local</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
             $default
         );
         $question->setValidator(function ($answer) {
             if (!filter_var('http://'.$answer.'.com', FILTER_VALIDATE_URL)) {
                 throw new \RuntimeException(
-                    'Docker project name must be suitable for use in domain name (no spaces, underscores etc.)'
+                    'Local project name must be suitable for use in domain name (no spaces, underscores etc.)'
                 );
             }
 
             return $answer;
         });
-        $this->_config['config']['docker']['name'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['name'] = $helper->ask($this->_input, $this->_output, $question);
 
 
 
-        $default = $this->_config['config']['docker']['package'];
+        $default = $this->_config['config']['local']['package'];
         $question = new Question(
             '<question>Composer package name (<vendor>/<name>)</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
             $default
@@ -233,11 +233,11 @@ class SetupEnvCommand extends ConfigurationCommand
 
             return $answer;
         });
-        $this->_config['config']['docker']['package'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['package'] = $helper->ask($this->_input, $this->_output, $question);
 
 
 
-        $default = $this->_config['config']['docker']['port'];
+        $default = $this->_config['config']['local']['port'];
         $question = new Question(
             '<question>Environment port suffix (3 digits - e.g. 014)</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
             $default
@@ -245,33 +245,33 @@ class SetupEnvCommand extends ConfigurationCommand
         $question->setValidator(function ($answer) {
             if (!preg_match('/^[0-9]{3}$/', $answer)) {
                 throw new \RuntimeException(
-                    'Docker port number must be a 3 digit number'
+                    'Local port number must be a 3 digit number'
                 );
             }
 
             return $answer;
         });
-        $this->_config['config']['docker']['port'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['port'] = $helper->ask($this->_input, $this->_output, $question);
 
 
-        $default = $this->_config['config']['docker']['sync']['active'];
+        $default = $this->_config['config']['local']['sync']['active'];
         $optionsLabel = $default ? 'Y/n' : 'y/N';
         $question = new ConfirmationQuestion(
-            '<question>Use docker-sync? ' . $optionsLabel . '</question> : [Current: <info>' . ($default ? 'Yes' : 'No') . '</info>]',
+            '<question>Use local-sync? ' . $optionsLabel . '</question> : [Current: <info>' . ($default ? 'Yes' : 'No') . '</info>]',
             $default,
             '/^(y|j)/i'
         );
-        $this->_config['config']['docker']['sync']['active'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['sync']['active'] = $helper->ask($this->_input, $this->_output, $question);
 
-        if ($this->_config['config']['docker']['sync']['active']) {
-            $this->askDockerSyncQuestions();
+        if ($this->_config['config']['local']['sync']['active']) {
+            $this->askLocalSyncQuestions();
         }
 
-        $this->askDockerComposeQuestions();
-        $this->saveDockerComposeConfig();
+        $this->askLocalComposeQuestions();
+        $this->saveLocalComposeConfig();
 
-        if ($this->_config['config']['docker']['sync']['active']) {
-            $this->saveDockerSyncConfig();
+        if ($this->_config['config']['local']['sync']['active']) {
+            $this->saveLocalSyncConfig();
         }
 
         if ($this->_usingLocalBuilds) {
@@ -280,25 +280,25 @@ class SetupEnvCommand extends ConfigurationCommand
     }
 
     /**
-     * Asks questions to setup docker sync
+     * Asks questions to setup local sync
      * @return null
      */
-    private function askDockerSyncQuestions()
+    private function askLocalSyncQuestions()
     {
         $helper = $this->getHelper('question');
 
-        $syncs = &$this->_config['config']['docker']['sync']['syncs'];
+        $syncs = &$this->_config['config']['local']['sync']['syncs'];
 
         unset($syncs['project-website-code-sync']);
 
-        $previousProjectName = isset($this->_previousConfig['config']['docker']['name'])
-                                ? $this->_previousConfig['config']['docker']['name']
+        $previousProjectName = isset($this->_previousConfig['config']['local']['name'])
+                                ? $this->_previousConfig['config']['local']['name']
                                 : 'project';
 
         foreach($syncs as $name => $values) {
             $newName = str_replace(
                 $previousProjectName,
-                $this->_config['config']['docker']['name'],
+                $this->_config['config']['local']['name'],
                 $name
             );
 
@@ -330,10 +330,10 @@ class SetupEnvCommand extends ConfigurationCommand
     }
 
     /**
-     * Asks questions to setup docker compose
+     * Asks questions to setup local compose
      * @return null
      */
-    private function askDockerComposeQuestions()
+    private function askLocalComposeQuestions()
     {
         $helper = $this->getHelper('question');
 
@@ -346,7 +346,7 @@ class SetupEnvCommand extends ConfigurationCommand
                     $container['frameworks']
                 )) {
                     $this->_output->writeln('<info>Skipping ' .$label . ' setup as ' . $this->_config['config']['environment']['framework'] . ' is not supported</info>');
-                    $this->_config['config']['docker']['compose']['services'][$node]['active'] = false;
+                    $this->_config['config']['local']['compose']['services'][$node]['active'] = false;
                     unset($this->_containers[$label]);
                     continue;
                 }
@@ -354,9 +354,9 @@ class SetupEnvCommand extends ConfigurationCommand
 
             if (isset($container['depends'])) {
                 foreach($container['depends'] as $dependency) {
-                    if (!$this->_config['config']['docker']['compose']['services'][$dependency]['active']) {
+                    if (!$this->_config['config']['local']['compose']['services'][$dependency]['active']) {
                         $this->_output->writeln('<info>Skipping ' .$label . ' setup as ' . $dependency . ' is not active</info>');
-                        $this->_config['config']['docker']['compose']['services'][$node]['active'] = false;
+                        $this->_config['config']['local']['compose']['services'][$node]['active'] = false;
                         unset($this->_containers[$label]);
                         continue;
                     }
@@ -365,7 +365,7 @@ class SetupEnvCommand extends ConfigurationCommand
 
             $useContainer = $this->containerRequired(
                 $label,
-                $this->_config['config']['docker']['compose']['services'][$node]['active'],
+                $this->_config['config']['local']['compose']['services'][$node]['active'],
                 $container['defaultActive']
             );
 
@@ -384,7 +384,7 @@ class SetupEnvCommand extends ConfigurationCommand
                 $activeLinks = [];
 
                 foreach($container['links'] as $linkNode) {
-                    if ($this->_config['config']['docker']['compose']['services'][$linkNode]['active']) {
+                    if ($this->_config['config']['local']['compose']['services'][$linkNode]['active']) {
                         $activeLinks[] = $linkNode;
                     }
                 }
@@ -392,9 +392,9 @@ class SetupEnvCommand extends ConfigurationCommand
                 $node = $container['node'];
 
                 if (count($activeLinks) > 0) {
-                    $this->_config['config']['docker']['compose']['services'][$node]['links'] = $activeLinks;
+                    $this->_config['config']['local']['compose']['services'][$node]['links'] = $activeLinks;
                 } else {
-                    unset($this->_config['config']['docker']['compose']['services'][$node]['links']);
+                    unset($this->_config['config']['local']['compose']['services'][$node]['links']);
                 }
             }
         }
@@ -493,10 +493,10 @@ class SetupEnvCommand extends ConfigurationCommand
     }
 
     /**
-     * Saves the docker compose config file
+     * Saves the local compose config file
      * @return null
      */
-    private function saveDockerComposeConfig()
+    private function saveLocalComposeConfig()
     {
         $path = $this->_input->getOption('path');
 
@@ -522,7 +522,7 @@ class SetupEnvCommand extends ConfigurationCommand
         
 
         //check if volumes var is null. If is dont add to config file
-        $volumes = isset($this->_config['config']['docker']['compose']['volumes']) ? $this->_config['config']['docker']['compose']['volumes'] : null;
+        $volumes = isset($this->_config['config']['local']['compose']['volumes']) ? $this->_config['config']['local']['compose']['volumes'] : null;
         if(!is_null($volumes)){
             $configArray['volumes'] = $volumes;
         }
@@ -537,27 +537,27 @@ class SetupEnvCommand extends ConfigurationCommand
      */
     private function getContainerLinks($nodeName)
     {
-        return isset($this->_config['config']['docker']['compose']['services'][$nodeName]['links'])
-            ? $this->_config['config']['docker']['compose']['services'][$nodeName]['links']
+        return isset($this->_config['config']['local']['compose']['services'][$nodeName]['links'])
+            ? $this->_config['config']['local']['compose']['services'][$nodeName]['links']
             : false;
     }
 
     /**
-     * Saves the docker sync config file
+     * Saves the local sync config file
      * @return null
      */
-    private function saveDockerSyncConfig()
+    private function saveLocalSyncConfig()
     {
         $path = $this->_input->getOption('path');
         
-        $config = $this->_config['config']['docker']['sync'];
+        $config = $this->_config['config']['local']['sync'];
         unset($config['active']);
 
         $this->saveConfig($path . '/' . Config::CONFIG_DIR, Sync::FILE, $config);
     }
         
     /**
-     * Initialises composer and installs creode docker tools
+     * Initialises composer and installs creode local tools
      * @return type
      */
     private function composerInit()
@@ -578,10 +578,10 @@ class SetupEnvCommand extends ConfigurationCommand
 
         $this->_composer->init(
             $path,
-            $this->_config['config']['docker']['package'],
+            $this->_config['config']['local']['package'],
             [
-                '--require-dev', 'creode/docker:~1.0.0',
-                '--repository', '{"type": "vcs", "url": "git@codebasehq.com:creode/creode/docker.git"}'
+                '--require-dev', 'creode/local:~1.0.0',
+                '--repository', '{"type": "vcs", "url": "git@codebasehq.com:creode/creode/local.git"}'
             ]
         );
 
@@ -602,18 +602,18 @@ class SetupEnvCommand extends ConfigurationCommand
         $container = $this->_containers[$containerName];
 
         $command = $this->getApplication()->find($container['command']);
-        $useDockerSync = $this->_config['config']['docker']['sync']['active'];
+        $useLocalSync = $this->_config['config']['local']['sync']['active'];
 
-        $previousProjectName = isset($this->_previousConfig['config']['docker']['name'])
-                                ? $this->_previousConfig['config']['docker']['name']
+        $previousProjectName = isset($this->_previousConfig['config']['local']['name'])
+                                ? $this->_previousConfig['config']['local']['name']
                                 : 'project';
 
-        if ($useDockerSync && isset($container['sync'])) {
+        if ($useLocalSync && isset($container['sync'])) {
             $sync = $container['sync'];
 
             $volumeName = str_replace(
                 'project',
-                $this->_config['config']['docker']['name'],
+                $this->_config['config']['local']['name'],
                 $sync['name']
             );
 
@@ -626,12 +626,12 @@ class SetupEnvCommand extends ConfigurationCommand
             $syncData = $sync['default'];
             $syncData['src'] = $this->_config['config']['dir']['src'];
 
-            unset($this->_config['config']['docker']['sync']['syncs'][$sync['name']]);
-            unset($this->_config['config']['docker']['compose']['volumes'][$sync['name']]);
-            unset($this->_config['config']['docker']['sync']['syncs'][$previousVolumeName]);
-            unset($this->_config['config']['docker']['compose']['volumes'][$previousVolumeName]);
-            $this->_config['config']['docker']['sync']['syncs'][$volumeName] = $syncData;
-            $this->_config['config']['docker']['compose']['volumes'][$volumeName]['external'] = true;
+            unset($this->_config['config']['local']['sync']['syncs'][$sync['name']]);
+            unset($this->_config['config']['local']['compose']['volumes'][$sync['name']]);
+            unset($this->_config['config']['local']['sync']['syncs'][$previousVolumeName]);
+            unset($this->_config['config']['local']['compose']['volumes'][$previousVolumeName]);
+            $this->_config['config']['local']['sync']['syncs'][$volumeName] = $syncData;
+            $this->_config['config']['local']['compose']['volumes'][$volumeName]['external'] = true;
         } else {
             $volumeName = false;
         } 
@@ -640,8 +640,8 @@ class SetupEnvCommand extends ConfigurationCommand
             'command' => $command,
             '--path' => $this->_input->getOption('path'),
             '--src' => $this->_config['config']['dir']['src'],
-            '--name' => $this->_config['config']['docker']['name'],
-            '--port' => $this->_config['config']['docker']['port'],
+            '--name' => $this->_config['config']['local']['name'],
+            '--port' => $this->_config['config']['local']['port'],
             '--volume' => $volumeName
         );
 

@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 class Php extends Container
 {
@@ -16,7 +16,7 @@ class Php extends Container
             '80:80'
         ],
         'environment' => [
-            'VIRTUAL_HOST' => '.project.docker'
+            'VIRTUAL_HOST' => '.project.local'
         ],
         'volumes' => [
             ['../src:/var/www/html']
@@ -55,21 +55,21 @@ class Php extends Container
     {
         $path = $this->_input->getOption('path');
         $src = $this->_input->getOption('src');
-        $dockername = $this->_input->getOption('name');
-        $dockerport = $this->_input->getOption('port');
+        $localname = $this->_input->getOption('name');
+        $localport = $this->_input->getOption('port');
         $volumeName = $this->_input->getOption('volume');
 
         // TODO: What if there are multiple sites? Can we setup multiple PHP containers
         // usage example will be Drupal sites where clearing cache doesn't do all sites
         $this->buildOrImage(
-            '../vendor/creode/docker/images/php/7.0',
+            '../vendor/creode/local/images/php/7.0',
             'creode/php-apache:7.0',
             $this->_config,
             [   // builds
-                '../vendor/creode/docker/images/php/7.0' => 'PHP 7.0',
-                '../vendor/creode/docker/images/php/5.6' => 'PHP 5.6',
-                '../vendor/creode/docker/images/php/5.6-ioncube' => 'PHP 5.6 with ionCube',
-                '../vendor/creode/docker/images/php/5.3' => 'PHP 5.3'
+                '../vendor/creode/local/images/php/7.0' => 'PHP 7.0',
+                '../vendor/creode/local/images/php/5.6' => 'PHP 5.6',
+                '../vendor/creode/local/images/php/5.6-ioncube' => 'PHP 5.6 with ionCube',
+                '../vendor/creode/local/images/php/5.3' => 'PHP 5.3'
             ],
             [   // images
                 'creode/php-apache:7.0' => 'PHP 7.0',
@@ -79,11 +79,11 @@ class Php extends Container
             ]
         );
 
-        $this->_config['container_name'] = $dockername . '_php';
+        $this->_config['container_name'] = $localname . '_php';
 
-        $this->_config['ports'] = ['3' . $dockerport . ':80'];
+        $this->_config['ports'] = ['3' . $localport . ':80'];
 
-        $this->_config['environment']['VIRTUAL_HOST'] = '.' . $dockername . '.docker';
+        $this->_config['environment']['VIRTUAL_HOST'] = '.' . $localname . '.local';
 
         $this->_config['links'] = []; 
 

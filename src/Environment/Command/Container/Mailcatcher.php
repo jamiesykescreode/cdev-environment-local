@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 class Mailcatcher extends Container
 {
@@ -21,11 +21,11 @@ class Mailcatcher extends Container
     protected function askQuestions()
     {
         $path = $this->_input->getOption('path');
-        $dockername = $this->_input->getOption('name');
-        $dockerport = $this->_input->getOption('port');
+        $localname = $this->_input->getOption('name');
+        $localport = $this->_input->getOption('port');
 
-        $this->_config['container_name'] = $dockername . '_mailcatcher';
+        $this->_config['container_name'] = $localname . '_mailcatcher';
 
-        $this->_config['ports'] = ['5' . $dockerport . ':1080'];
+        $this->_config['ports'] = ['5' . $localport . ':1080'];
     }
 }

@@ -1,13 +1,13 @@
 <?php
-namespace Cdev\Docker\Environment\System\Sync;
+namespace Cdev\Local\Environment\System\Sync;
 
 use Creode\Cdev\Config;
 use Creode\System\Command;
 
 class Sync extends Command
 {
-    const COMMAND = 'docker-sync';
-    const FILE = 'docker-sync.yml';
+    const COMMAND = 'local-sync';
+    const FILE = 'local-sync.yml';
 
     /**
      * @var boolean

@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 class Redis extends Container
 {
@@ -21,9 +21,9 @@ class Redis extends Container
     protected function askQuestions()
     {
         $path = $this->_input->getOption('path');
-        $dockername = $this->_input->getOption('name');
-        $dockerport = $this->_input->getOption('port');
+        $localname = $this->_input->getOption('name');
+        $localport = $this->_input->getOption('port');
 
-        $this->_config['container_name'] = $dockername . '_redis';
+        $this->_config['container_name'] = $localname . '_redis';
     }
 }

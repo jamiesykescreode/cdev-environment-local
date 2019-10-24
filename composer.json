@@ -1,18 +1,18 @@
 {
-    "name": "cdev/environment-docker",
-    "description": "Docker environment plugin for cdev",
+    "name": "cdev/environment-local",
+    "description": "Local environment plugin for cdev",
     "type": "cdev-plugin",
     "license": "MIT",
     "authors": [
         {
-            "name": "Gareth Midwood",
-            "email": "gareth.midwood@creode.co.uk"
+            "name": "Jamie Sykes",
+            "email": "jamie.sykes@creode.co.uk"
         }
     ],
     "require": {},
     "autoload": {
         "psr-4": {
-            "Cdev\\Docker\\": "src"
+            "Cdev\\Local\\": "src"
         }
     }
 }

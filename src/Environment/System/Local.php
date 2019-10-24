@@ -1,11 +1,11 @@
 <?php
-namespace Cdev\Docker\Environment\System;
+namespace Cdev\Local\Environment\System;
 
 use Creode\System\Command;
 
-class Docker extends Command
+class Local extends Command
 {
-    const COMMAND = 'docker';
+    const COMMAND = 'local';
     
     public function cleanup($path)
     {

@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -26,7 +26,7 @@ class Mysql extends Container
             'MYSQL_PASSWORD' => 'webpassword'
         ],
         'volumes' => [
-            '../db:/docker-entrypoint-initdb.d',
+            '../db:/local-entrypoint-initdb.d',
             '/var/lib/mysql',
         ]
     ];
@@ -41,27 +41,27 @@ class Mysql extends Container
     protected function askQuestions()
     {
         $path = $this->_input->getOption('path');
-        $dockername = $this->_input->getOption('name');
-        $dockerport = $this->_input->getOption('port');
+        $localname = $this->_input->getOption('name');
+        $localport = $this->_input->getOption('port');
 
         if (!$this->_fs->exists($path . '/' . self::DB_DIR)) {
             $this->_fs->mkdir($path . '/' . self::DB_DIR, 0740);
         }
 
         $this->buildOrImage(
-            '../vendor/creode/docker/images/mysql',
+            '../vendor/creode/local/images/mysql',
             'creode/mysql:5.6',
             $this->_config,
             [   // builds
-                '../vendor/creode/docker/images/mysql' => 'MySQL'
+                '../vendor/creode/local/images/mysql' => 'MySQL'
             ],
             [   // images
                 'creode/mysql:5.6' => 'MySQL'
             ]
         );
 
-        $this->_config['container_name'] = $dockername . '_mysql';
+        $this->_config['container_name'] = $localname . '_mysql';
 
-        $this->_config['ports'] = ['4' . $dockerport . ':3306'];
+        $this->_config['ports'] = ['4' . $localport . ':3306'];
     }
 }

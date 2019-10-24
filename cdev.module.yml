@@ -1,9 +1,9 @@
 commands:
- - cdev.docker_container_mysql
- - cdev.docker_container_php
- - cdev.docker_container_mailcatcher
- - cdev.docker_container_redis
- - cdev.docker_container_drush
- - cdev.docker_setup
+ - cdev.local_container_mysql
+ - cdev.local_container_php
+ - cdev.local_container_mailcatcher
+ - cdev.local_container_redis
+ - cdev.local_container_drush
+ - cdev.local_setup
 environments:
- - \Cdev\Docker\Environment\Docker
+ - \Cdev\Local\Environment\Local

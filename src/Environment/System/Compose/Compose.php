@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\System\Compose;
+namespace Cdev\Local\Environment\System\Compose;
 
 use Creode\Cdev\Config;
 use Creode\System\Command;
@@ -7,8 +7,8 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class Compose extends Command
 {
-    const COMMAND = 'docker-compose';
-    const FILE = 'docker-compose.yml';
+    const COMMAND = 'local-compose';
+    const FILE = 'local-compose.yml';
 
     /**
      * @var boolean
@@ -244,7 +244,7 @@ class Compose extends Command
             $process = $e->getProcess();
 
             if ($process->getExitCode() == 129) {
-                echo 'Docker hung up - it\'s probably fine, it does that...' . PHP_EOL . PHP_EOL;
+                echo 'Local hung up - it\'s probably fine, it does that...' . PHP_EOL . PHP_EOL;
             } else {
                 throw $e;
             }

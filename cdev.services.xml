@@ -7,39 +7,39 @@
 
         <!-- Command classes -->
 
-        <service id="cdev.docker_setup" class="Cdev\Docker\Environment\Command\SetupEnvCommand">
-            <argument type="service" id="environment.type.docker" />
+        <service id="cdev.local_setup" class="Cdev\Local\Environment\Command\SetupEnvCommand">
+            <argument type="service" id="environment.type.local" />
             <argument type="service" id="cdev.system_composer" />
             <argument type="service" id="symfony.filesystem" />
         </service>
 
-        <service id="cdev.docker_container_mysql" class="Cdev\Docker\Environment\Command\Container\Mysql">
+        <service id="cdev.local_container_mysql" class="Cdev\Local\Environment\Command\Container\Mysql">
             <argument type="service" id="symfony.filesystem" />
         </service>
 
-        <service id="cdev.docker_container_php"
-            class="Cdev\Docker\Environment\Command\Container\Php">
+        <service id="cdev.local_container_php"
+            class="Cdev\Local\Environment\Command\Container\Php">
         </service>
 
-        <service id="cdev.docker_container_mailcatcher"
-            class="Cdev\Docker\Environment\Command\Container\Mailcatcher">
+        <service id="cdev.local_container_mailcatcher"
+            class="Cdev\Local\Environment\Command\Container\Mailcatcher">
         </service>
 
-        <service id="cdev.docker_container_redis"
-            class="Cdev\Docker\Environment\Command\Container\Redis">
+        <service id="cdev.local_container_redis"
+            class="Cdev\Local\Environment\Command\Container\Redis">
         </service>
 
-        <service id="cdev.docker_container_drush"
-            class="Cdev\Docker\Environment\Command\Container\Drush">
+        <service id="cdev.local_container_drush"
+            class="Cdev\Local\Environment\Command\Container\Drush">
         </service>
 
 
         <!-- Environments -->
 
-        <service id="environment.type.docker" class="Cdev\Docker\Environment\Docker">
-            <argument type="service" id="cdev.system_docker" />
-            <argument type="service" id="cdev.system_docker_compose" />
-            <argument type="service" id="cdev.system_docker_sync" />
+        <service id="environment.type.local" class="Cdev\Local\Environment\Local">
+            <argument type="service" id="cdev.system_local" />
+            <argument type="service" id="cdev.system_local_compose" />
+            <argument type="service" id="cdev.system_local_sync" />
             <argument type="service" id="cdev.environment.framework" />
             <argument type="service" id="cdev.config" />
         </service>
@@ -47,16 +47,16 @@
 
         <!-- System commands -->
 
-        <service id="cdev.system_docker"
-            class="Cdev\Docker\Environment\System\Docker">
+        <service id="cdev.system_local"
+            class="Cdev\Local\Environment\System\Local">
         </service>
 
-        <service id="cdev.system_docker_compose"
-            class="Cdev\Docker\Environment\System\Compose\Compose">
+        <service id="cdev.system_local_compose"
+            class="Cdev\Local\Environment\System\Compose\Compose">
         </service>
 
-        <service id="cdev.system_docker_sync"
-            class="Cdev\Docker\Environment\System\Sync\Sync">
+        <service id="cdev.system_local_sync"
+            class="Cdev\Local\Environment\System\Sync\Sync">
         </service>
         
     </services>

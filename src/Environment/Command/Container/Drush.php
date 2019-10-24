@@ -1,5 +1,5 @@
 <?php
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 class Drush extends Container
 {
@@ -12,7 +12,7 @@ class Drush extends Container
     [
         'active' => false,
         'container_name' => 'project_drush',
-        'image' => 'drupaldocker/drush',
+        'image' => 'drupallocal/drush',
         'links' => [
             'mysql'
         ],
@@ -25,9 +25,9 @@ class Drush extends Container
     {
         $path = $this->_input->getOption('path');
         $src = $this->_input->getOption('src');
-        $dockername = $this->_input->getOption('name');
-        $dockerport = $this->_input->getOption('port');
+        $localname = $this->_input->getOption('name');
+        $localport = $this->_input->getOption('port');
 
-        $this->_config['container_name'] = $dockername . '_drush';
+        $this->_config['container_name'] = $localname . '_drush';
     }
 }

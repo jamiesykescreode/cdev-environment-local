@@ -1,16 +1,13 @@
 <?php
 
-namespace Cdev\Docker\Environment\Command\Container;
+namespace Cdev\Local\Environment\Command\Container;
 
 use Creode\Cdev\Config;
 use Creode\Cdev\Command\ConfigurationCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
 abstract class Container extends ConfigurationCommand
 {
@@ -36,15 +33,15 @@ abstract class Container extends ConfigurationCommand
             'name',
             'm',
             InputOption::VALUE_REQUIRED,
-            'Docker project name',
-            'docker'
+            'Local project name',
+            'local'
         );
 
         $this->addOption(
             'port',
             'o',
             InputOption::VALUE_REQUIRED,
-            'Docker port number',
+            'Local port number',
             '000'
         );
 
@@ -60,7 +57,7 @@ abstract class Container extends ConfigurationCommand
             'volume',
             'l',
             InputOption::VALUE_REQUIRED,
-            'Use Docker Sync volume?',
+            'Use Local Sync volume?',
             false
         );
     }

@@ -1,28 +1,25 @@
 <?php
 
-namespace Cdev\Docker\Environment;
+namespace Cdev\Local\Environment;
 
 use Creode\Cdev\Config;
-use Cdev\Docker\Environment\System\Compose\Compose;
-use Cdev\Docker\Environment\System\Docker as SystemDocker;
-use Cdev\Docker\Environment\System\Sync\Sync;
+use Cdev\Local\Environment\System\Compose\Compose;
+use Cdev\Local\Environment\System\Local as SystemLocal;
+use Cdev\Local\Environment\System\Sync\Sync;
 use Creode\Environment\Environment;
 use Creode\Framework\Framework;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Yaml\Yaml;
 
-
-
-class Docker extends Environment
+class Local extends Environment
 {
-    const NAME = 'docker';
-    const LABEL = 'Docker';
-    const COMMAND_NAMESPACE = 'docker';
+    const NAME = 'local';
+    const LABEL = 'Local';
+    const COMMAND_NAMESPACE = 'local';
     
     /**
-     * @var SystemDocker
+     * @var SystemLocal
      */
-    private $_docker;
+    private $_local;
 
     /**
      * @var Compose
@@ -52,7 +49,7 @@ class Docker extends Environment
     /**
      * @var boolean
      */
-    private $_usingDockerSync = false;
+    private $_usingLocalSync = false;
 
     /**
      * @var string
@@ -60,7 +57,7 @@ class Docker extends Environment
     private $_networkName;
 
     /**
-     * @param SystemDocker $docker
+     * @param SystemLocal $local
      * @param Compose $compose 
      * @param Sync $sync 
      * @param Framework $framework
@@ -68,24 +65,24 @@ class Docker extends Environment
      * @return null
      */
     public function __construct(
-        SystemDocker $docker,
+        SystemLocal $local,
         Compose $compose,
         Sync $sync,
         Framework $framework,
         Config $config
     ) {
-        $this->_docker = $docker;
+        $this->_local = $local;
         $this->_compose = $compose;
         $this->_sync = $sync;
         $this->_framework = $framework;
         $this->_config = $config;
 
-        $conf = $this->_config->get('docker', false);
+        $conf = $this->_config->get('local', false);
 
         $this->_networkName = isset($conf['name']) ? $conf['name'] : 'unknown';
         $this->_compose->setNetwork($this->_networkName);
 
-        $this->_usingDockerSync = isset($conf['sync']['active']) && $conf['sync']['active'];
+        $this->_usingLocalSync = isset($conf['sync']['active']) && $conf['sync']['active'];
     }
 
     /**
@@ -107,7 +104,7 @@ class Docker extends Environment
         $update = $this->_input->getOption('update');
         
 
-        if ($this->_usingDockerSync) {
+        if ($this->_usingLocalSync) {
             $this->_sync->start($path);
         }
 
@@ -126,7 +123,7 @@ class Docker extends Environment
 
         $this->_compose->stop($path);
  
-        if ($this->_usingDockerSync) {
+        if ($this->_usingLocalSync) {
             $this->_sync->stop($path);
         }
     }
@@ -140,7 +137,7 @@ class Docker extends Environment
         $this->_compose->stop($path);
         $this->_compose->rm($path);
 
-        if ($this->_usingDockerSync) {
+        if ($this->_usingLocalSync) {
             $this->_sync->clean($path);
         }
 
@@ -155,18 +152,18 @@ class Docker extends Environment
 
         $this->_compose->ps($path);
  
-        if ($this->_usingDockerSync) {
+        if ($this->_usingLocalSync) {
             $this->_sync->listSyncPoints($path);
         }
     }
 
     public function cleanup()
     {
-        $this->logTitle('Cleaning up Docker leftovers...');
+        $this->logTitle('Cleaning up Local leftovers...');
 
         $path = $this->_input->getOption('path');
 
-        $this->_docker->cleanup($path);
+        $this->_local->cleanup($path);
     }
 
     public function ssh()
@@ -196,7 +193,7 @@ class Docker extends Environment
     }
 
     /**
-     * Runs a command on the docker-compose php container
+     * Runs a command on the local-compose php container
      * @param array $command 
      * @param bool $elevatePermissions 
      * @return null
@@ -222,7 +219,7 @@ class Docker extends Environment
 
 
     /**
-     * Returns docker compose system object
+     * Returns local compose system object
      * @return Compose
      */
     public function getCompose()
@@ -231,7 +228,7 @@ class Docker extends Environment
     }
 
     /**
-     * Returns docker sync system object
+     * Returns local sync system object
      * @return Sync
      */
     public function getSync()
