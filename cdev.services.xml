@@ -29,6 +29,10 @@
         <service id="cdev.system.brew_apache"
             class="Cdev\Local\Environment\System\Brew\Apache">
         </service>
+
+        <service id="cdev.system.config" 
+            class="Cdev\Local\Environment\System\Config\ConfigHelper">
+        </service>
         
     </services>
 </container>

@@ -20,7 +20,7 @@ class Local extends Environment
     protected $_framework;
 
     /**
-     * @var Config
+     * @var Creode\Cdev\Config
      */
     private $_config;
 
@@ -59,7 +59,7 @@ class Local extends Environment
         $this->logTitle('Starting dev environment...');
 
         $path = $this->_input->getOption('path');
-        $this->_apache->start($path);
+        $this->_apache->start($path, $this->_config);
     }
 
     public function stop()
