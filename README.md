@@ -1,6 +1,8 @@
 # cdev-environment-local
 The Local environment plugin for cdev
 
+ - https://getgrav.org/blog/macos-catalina-apache-mysql-vhost-apc
+
  - https://medium.com/@wvervuurt/how-to-run-multiple-php-versions-simultaneously-under-os-x-el-capitan-using-standard-apache-98351f4cec67
 
  - https://serverfault.com/questions/614351/proxy-pass-not-working
