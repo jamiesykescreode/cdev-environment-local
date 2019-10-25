@@ -6,6 +6,7 @@ use Creode\Cdev\Config;
 use Creode\Environment\Environment;
 use Creode\Framework\Framework;
 use Symfony\Component\Console\Input\InputInterface;
+use Creode\System\Command;
 
 class Local extends Environment
 {
@@ -24,16 +25,23 @@ class Local extends Environment
     private $_config;
 
     /**
+     * @var \Cdev\Local\Environment\System\Brew\Apache
+     */
+    private $_apache;
+
+    /**
      * @param Framework $framework
      * @param Config $config
      * @return null
      */
     public function __construct(
         Framework $framework,
-        Config $config
+        Config $config,
+        Command $apache
     ) {
         $this->_framework = $framework;
         $this->_config = $config;
+        $this->_apache = $apache;
     }
 
     /**
@@ -49,14 +57,17 @@ class Local extends Environment
     public function start()
     {
         $this->logTitle('Starting dev environment...');
-        echo $this::COMMAND_NAMESPACE;
-        $this->displayInstallationMessage();
+
+        $path = $this->_input->getOption('path');
+        $this->_apache->start($path);
     }
 
     public function stop()
     {
         $this->logTitle('Stopping dev environment...');
-        $this->displayInstallationMessage();
+
+        $path = $this->_input->getOption('path');
+        $this->_apache->stop($path);
     }
 
     public function nuke()

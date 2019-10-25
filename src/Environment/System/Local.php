@@ -14,7 +14,7 @@ class Local extends Command
         // $this->run(self::COMMAND, ['image', 'prune', '--force'], $path);
         // $this->run(self::COMMAND, ['volume', 'prune', '--force'], $path);
 
-        return 'Clean up complete.';
+        return 'Not implemented yet!';
     }
 
     public function pull($path, $image)
