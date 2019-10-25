@@ -9,10 +9,19 @@
             "email": "jamie.sykes@creode.co.uk"
         }
     ],
-    "require": {},
+    "require": {
+        "pear/config": "dev-trunk"
+    },
     "autoload": {
         "psr-4": {
             "Cdev\\Local\\": "src"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/FelixAuer/Config"
+        }
+    ],
+    "minimum-stability": "dev"
 }
