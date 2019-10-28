@@ -2,11 +2,9 @@
 
 namespace Cdev\Local\Environment\System\Brew;
 
-use Cdev\Local\Environment\System\Helpers\ApacheHelper;
 use Creode\System\Command;
-use Config as PearConfig;
+use Cdev\Local\Environment\System\Helpers\ApacheHelper;
 use Cdev\Local\Environment\System\Config\ConfigHelper;
-use Pear;
 
 class Apache extends Command {
     const COMMAND = 'apachectl';
