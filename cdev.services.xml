@@ -28,10 +28,17 @@
 
         <service id="cdev.system.brew_apache"
             class="Cdev\Local\Environment\System\Brew\Apache">
+            <argument type="service" id="cdev.system.helpers.apache" />
+            <argument type="service" id="cdev.system.config" />
         </service>
 
         <service id="cdev.system.config" 
             class="Cdev\Local\Environment\System\Config\ConfigHelper">
+            <argument type="service" id="cdev.config" />
+        </service>
+
+        <service id="cdev.system.helpers.apache" 
+            class="Cdev\Local\Environment\System\Helpers\ApacheHelper">
         </service>
         
     </services>

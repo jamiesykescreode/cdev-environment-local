@@ -89,7 +89,7 @@ class ApacheHelper {
      * @return bool
      *    If we meet the apache dependencies required for our setup to work.
      */
-    public static function meetsDependencies() {
+    public function meetsDependencies() {
         $process = new Process(['apachectl', '-t', '-D', 'DUMP_MODULES']);
         $process->run();
 

@@ -6,18 +6,15 @@ use Creode\Cdev\Command\ConfigurationCommand;
 use Creode\Cdev\Config;
 use Cdev\Local\Environment\Local;
 use Creode\System\Composer\Composer;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class SetupEnvCommand extends ConfigurationCommand
 {
@@ -26,6 +23,7 @@ class SetupEnvCommand extends ConfigurationCommand
             'local' => [
                 'name' => null,
                 'package' => null,
+                'php-version' => null
             ]
         ]
     ];
@@ -145,99 +143,18 @@ class SetupEnvCommand extends ConfigurationCommand
         });
         $this->_config['config']['local']['package'] = $helper->ask($this->_input, $this->_output, $question);
 
-        if ($this->_usingLocalBuilds) {
-            $this->composerInit();
-        }
-    }
-
-    /**
-     * Asks whether a container is required and saves results
-     * @param string $label 
-     * @param string|array &$config 
-     * @param boolean $defaultActive
-     * @return boolean
-     */
-    private function containerRequired($label, &$config, $defaultActive)
-    {
-        $helper = $this->getHelper('question');
-
-        $required = ((is_null($config) && $defaultActive) || $config);
-
-        $optionsLabel = $required ? 'Y/n' : 'y/N';
-        $question = new ConfirmationQuestion(
-            '<question>' . $label . '? ' . $optionsLabel . '</question> : [Current: <info>' . ($required ? 'Yes' : 'No') . '</info>]',
-            $required,
-            '/^(y|j)/i'
-        );
-        $config = $helper->ask($this->_input, $this->_output, $question);
-
-        return $config;
-    }
-
-    /**
-     * Asks whether to use an image or build the image from local scripts
-     * @param string $defaultBuild 
-     * @param string $defaultImage 
-     * @param array &$config
-     * @param array $builds
-     * @param array $images
-     */
-    private function buildOrImage(
-        $defaultBuild,
-        $defaultImage,
-        array &$config,
-        array $builds = [],
-        array $images = []
-    ) {
-        $helper = $this->getHelper('question');
-
-        $current = isset($config['build']) ? 'build' : (isset($config['image']) ? 'image' : null);
-        $default = isset($current) ? $current : 'image';
+        $phpVersions = $this->getAvailablePHPVersions();
 
         $question = new ChoiceQuestion(
-            '<question>Build or Image:</question> [Current: <info>' . $default . '</info>]',
-            [
-                'build' => 'build',
-                'image' => 'image'
-            ],
-            $default
+            'Please select version of PHP for this site.',
+            $phpVersions,
+            count($phpVersions) - 1
         );
-        $question->setErrorMessage('Choice %s is invalid.');
-        $chosen = $helper->ask($this->_input, $this->_output, $question);
 
-        switch ($chosen) {
-            case 'build':
-                $this->_usingLocalBuilds = true;
+        $this->_config['config']['local']['php-version'] = $helper->ask($this->_input, $this->_output, $question);
 
-                if (isset($config['image'])) {
-                    unset($config['image']);
-                }
-
-                $default = isset($config['build']) ? $config['build'] : $defaultBuild;
-
-                $question = new ChoiceQuestion(
-                    '<question>Build:</question> [Current: <info>' . $default . '</info>]',
-                    $builds,
-                    $default
-                );
-                $question->setErrorMessage('Build %s is invalid.');
-                $config['build'] = $helper->ask($this->_input, $this->_output, $question);
-                break;
-            case 'image':
-                if (isset($config['build'])) {
-                    unset($config['build']);
-                }
-
-                $default = isset($config['image']) ? $config['image'] : $defaultImage;
-
-                $question = new ChoiceQuestion(
-                    '<question>Image:</question> [Current: <info>' . $default . '</info>]',
-                    $images,
-                    $default
-                );
-                $question->setErrorMessage('Image %s is invalid.');
-                $config['image'] = $helper->ask($this->_input, $this->_output, $question);
-                break;
+        if ($this->_usingLocalBuilds) {
+            $this->composerInit();
         }
     }
 
@@ -274,5 +191,30 @@ class SetupEnvCommand extends ConfigurationCommand
         $this->_output->writeln('<info>Running composer install</info>');
 
         $this->_composer->install($path);
+    }
+
+    private function getAvailablePHPVersions() {
+        $process = new Process('brew services list | grep php@');
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $listedVersions = explode("\n", $process->getOutput());
+
+        $filteredList = array_filter(
+            array_map(function($version) {
+                return substr($version, 0, strpos($version, ' '));
+            }, $listedVersions)
+        );
+
+        foreach($filteredList as $key => $value) {
+            unset($filteredList[$key]);
+            $filteredList[str_replace('php@', '', $value)] = $value;
+        }
+
+        return $filteredList;
     }
 }

@@ -12,34 +12,51 @@ class Apache extends Command {
     const COMMAND = 'apachectl';
 
     /**
+     * Apache Helper.
+     *
+     * @var \Cdev\Local\Environment\System\Helpers\ApacheHelper
+     */
+    private $_apache;
+
+    /**
+     * Config Helper.
+     *
+     * @var \Cdev\Local\Environment\System\Config\ConfigHelper
+     */
+    private $_configHelper;
+
+    /**
+     * Constructor.
+     *
+     * @param ApacheHelper $apache
+     * @param ConfigHelper $configHelper
+     */
+    public function __construct($apache, $configHelper) {
+        $this->_apache = $apache;
+        $this->_configHelper = $configHelper;
+    }
+
+    /**
      * Initialises the Apache Setup (create hosts).
      * @return void
      */
     private function initialise($config) {
-        if (ApacheHelper::meetsDependencies()) {
+        if (!$this->_apache->meetsDependencies()) {
             echo "Ensure the following Apache modules are installed and loaded:\n " . implode("\n ", ApacheHelper::MODULE_DEPENDENCIES);
         }
 
+        $hostname = $this->_configHelper->getHostname($config);
+        $path = '"' . $this->_configHelper->getSitePath($config) . '"';
 
-        // var_dump($modules);
-
-        $configHelper = new ConfigHelper($config);
-
-        // Get hostname
-        $hostname = ConfigHelper::getHostname($config);
-
-        // // Get path
-        $path = '"' . ConfigHelper::getSitePath($config) . '"';
-
-        echo $path;
-
-        $apacheFile = new ApacheHelper();
-
-        // // Check if host exists.
-        if (!$apacheFile->siteConfigExists($hostname, $path)) {
+        // Check if host exists.
+        if ($this->_apache->siteConfigExists($hostname, $path)) {
             echo 'No configuration!';
-            $apacheFile->addHost($hostname, $path, $config);
+            var_dump($config);
+            die;
+            $this->_apache->addHost($hostname, $path, $config);
         }
+
+        echo $this->_apache->siteConfigExists($hostname, $path);
 
 
 
