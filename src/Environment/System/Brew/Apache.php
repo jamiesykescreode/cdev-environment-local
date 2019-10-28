@@ -49,13 +49,10 @@ class Apache extends Command {
         $path = $this->_configHelper->getSitePath($config);
 
         // Check if host exists.
-        if (!$this->_apache->siteConfigExists($hostname, $path)) {
+        if (!$this->_apache->siteConfigExists($path)) {
             echo 'No configuration!';
             $this->_apache->addHost($hostname, $path, $config);
         }
-
-        // echo $this->_apache->siteConfigExists($hostname, $path);
-
     }
 
     /**

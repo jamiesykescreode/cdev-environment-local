@@ -8,10 +8,13 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Cdev\Local\Environment\System\Config\ConfigHelper;
 
+/**
+ * Contains functions to help with apache setup.
+ */
 class ApacheHelper {
 
     /**
-     * Undocumented variable
+     * Path to vhosts file.
      *
      * @var string
      */
@@ -32,8 +35,8 @@ class ApacheHelper {
     public $_root_node;
 
     /**
-     * @var string[] 
-     *    List of dependencies required to run.
+     * List of dependencies required to run.
+     * @var string[]
      */
     public const MODULE_DEPENDENCIES = [
         'proxy_module',
@@ -41,6 +44,12 @@ class ApacheHelper {
         'proxy_fcgi_module'
     ];
 
+    /**
+     * Loads in an apache configuration file so that it can be used in the class.
+     * 
+     * @param string $path
+     *    Path to the configuration file in Apache.
+     */
     private function loadApacheConfigFile($path) {
         $pearConfig = new PearConfig();
         
@@ -54,13 +63,15 @@ class ApacheHelper {
     }
 
     /**
-     * Check if the path matches in the configuration file.
+     * Checks if the site configuration already exists inside the
+     * apache hosts configuration.
+     *
+     * @param string $path
+     *    Path to site.
+     * @return bool
+     *    Returns true if configuration site exists for site.
      */
-    private static function pathMatches($path) {
-        self::loadApacheConfigFile($path);
-    }
-
-    public function siteConfigExists($hostname, $path) {
+    public function siteConfigExists($path) {
         $this->loadApacheConfigFile($this->configPath);
 
         // Converts file path into doc path.
@@ -72,6 +83,7 @@ class ApacheHelper {
         $exists = false;
         while ($item = $root->getItem('section', 'VirtualHost', null, null, $i++)) {
             // Find out if we need to use this.
+            // TODO: At some point I may want to check the hostname instead but this is fine for now.
             foreach ($item->children as $child) {
                 if ($child->name == 'DocumentRoot' && $child->content === $filePath) {
                     $exists = true;
@@ -82,6 +94,16 @@ class ApacheHelper {
         return $exists;
     }
 
+    /**
+     * Handles adding the host into the apache configuration.
+     *
+     * @param string $hostname
+     *    Hostname to use when adding to apache configuration file.
+     * @param string $path
+     *    Path to site.
+     * @param \Cdev\Local\Environment\System\Config\ConfigHelper $config
+     *    Configuration helper class to get various configuration options from.
+     */
     public function addHost($hostname, $path, $config) {
         // Get the version of PHP from Config.
         $phpVersion = ConfigHelper::getPhpVersion($config);
@@ -103,6 +125,8 @@ class ApacheHelper {
         // Write the file.
         $this->_configuration->writeConfig($this->configPath, 'apache');
     }
+
+    // TODO: Add some functionality to remove a host.
 
     /**
      * Checks if the dependencies for the existing apache configuration work.
@@ -141,12 +165,30 @@ class ApacheHelper {
         return $hasDependencies;
     }
 
+    /**
+     * Takes version and path to dev folder and converts it into
+     * a ProxyPassMatch directive in Apache.
+     *
+     * @param string $version
+     *    Version number in format "7.2" etc.
+     * @param string $path
+     *    Path to project.
+     * @return string
+     */
     private function parseListenLine($version, $path) {
         $portNumber = $this->phpVersionToPortNumber($version);
 
         return "^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:$portNumber$path/$1";
     }
 
+    /**
+     * Converts the current PHP version into a port number
+     * so that it can be used in apache config.
+     *
+     * @param string $version
+     *    Version in format "7.2" etc
+     * @return string
+     */
     private function phpVersionToPortNumber($version) {
         $parsedVersion = intval(str_replace('.', '', $version));
         if ($parsedVersion < 100) {
