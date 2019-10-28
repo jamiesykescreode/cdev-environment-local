@@ -46,88 +46,16 @@ class Apache extends Command {
         }
 
         $hostname = $this->_configHelper->getHostname($config);
-        $path = '"' . $this->_configHelper->getSitePath($config) . '"';
+        $path = $this->_configHelper->getSitePath($config);
 
         // Check if host exists.
-        if ($this->_apache->siteConfigExists($hostname, $path)) {
+        if (!$this->_apache->siteConfigExists($hostname, $path)) {
             echo 'No configuration!';
-            var_dump($config);
-            die;
             $this->_apache->addHost($hostname, $path, $config);
         }
 
-        echo $this->_apache->siteConfigExists($hostname, $path);
+        // echo $this->_apache->siteConfigExists($hostname, $path);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // $pearConfig = new PearConfig();
-
-        
-        // $root = $pearConfig->parseConfig($file, 'apache');
-
-        // if (PEAR::isError($root)) {
-        //     echo 'Error reading config: ' . $root->getMessage() . "\n";
-        //     exit(1);
-        // }
-
-        // $current_folder = getcwd();
-        // $folder = '"' . $current_folder . '/' . $config->get('dir')['src'] . '"';
-        
-        // // var_dump($apache_hosts);
-        // // die;
-
-        // $i = 0;
-        // while($item = $root->getItem('section', 'VirtualHost', null, null, $i++)) {
-        //     // echo $item->name . "\n";
-
-        //     $delete = false;
-
-        //     // Find out if we need to use this.
-
-        //     foreach($item->children as $child) {
-        //         // $child->removeItem();
-        //         if ($child->name == 'DocumentRoot' && $child->content === $folder) {
-        //             $delete = true;
-        //         }
-        //     }
-
-        //     if ($delete) {
-        //         $item->removeItem();
-        //     }
-        // }
-
-        // // die;
-
-        // $pearConfig->writeConfig(getcwd() . '/dummy-apache.conf', 'apache');
-
-        // $current_folder = getcwd();
-        // $folder = '"' . $current_folder . '/' . $config->get('dir')['src'] . '"';
-
-        // foreach($apache_hosts as $host) {
-        //     var_dump($host->children);
-        // }
-
-        // die;
-
-        // var_dump($hosts);
-        // die;
     }
 
     /**

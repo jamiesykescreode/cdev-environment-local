@@ -27,4 +27,8 @@ class ConfigHelper {
     public static function getSitePath(Config $config) {
         return getcwd() . '/' . $config->get('dir')['src'];
     }
+
+    public static function getPhpVersion($config) {
+        return $config->get('local')['php-version'];
+    }
 }

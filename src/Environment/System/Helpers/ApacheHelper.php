@@ -6,8 +6,16 @@ use Pear;
 use Config as PearConfig;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Cdev\Local\Environment\System\Config\ConfigHelper;
 
 class ApacheHelper {
+
+    /**
+     * Undocumented variable
+     *
+     * @var string
+     */
+    public $configPath = '/usr/local/etc/httpd/extra/httpd-vhosts.conf';
 
     /**
      * Parsed Apache Config File
@@ -53,7 +61,10 @@ class ApacheHelper {
     }
 
     public function siteConfigExists($hostname, $path) {
-        $this->loadApacheConfigFile('/usr/local/etc/httpd/extra/httpd-vhosts.conf');
+        $this->loadApacheConfigFile($this->configPath);
+
+        // Converts file path into doc path.
+        $filePath = '"' . $path . '"';
 
         $root = $this->_root_node;
 
@@ -62,7 +73,7 @@ class ApacheHelper {
         while ($item = $root->getItem('section', 'VirtualHost', null, null, $i++)) {
             // Find out if we need to use this.
             foreach ($item->children as $child) {
-                if ($child->name == 'DocumentRoot' && $child->content === $path) {
+                if ($child->name == 'DocumentRoot' && $child->content === $filePath) {
                     $exists = true;
                 }
             }
@@ -73,14 +84,24 @@ class ApacheHelper {
 
     public function addHost($hostname, $path, $config) {
         // Get the version of PHP from Config.
+        $phpVersion = ConfigHelper::getPhpVersion($config);
 
         // Parse it in to a listen line to allow PHP to pick up on it.
+        $listenLine = $this->parseListenLine($phpVersion, $path);
 
         // Build up a node with hostname, path and config.
+        $this->_root_node->createBlank();
 
         // Inject it into the _root variable.
+        $this->_root_node->createComment('Configuration for ' . $hostname);
+        $vhost = $this->_root_node->createSection('VirtualHost', array('*:80'));
+
+        $vhost->createDirective('DocumentRoot',  '"' . $path . '"');
+        $vhost->createDirective('ServerName', $hostname);
+        $vhost->createDirective('ProxyPassMatch', $listenLine);
 
         // Write the file.
+        $this->_configuration->writeConfig($this->configPath, 'apache');
     }
 
     /**
@@ -118,5 +139,20 @@ class ApacheHelper {
         }, true);
 
         return $hasDependencies;
+    }
+
+    private function parseListenLine($version, $path) {
+        $portNumber = $this->phpVersionToPortNumber($version);
+
+        return "^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:$portNumber$path/$1";
+    }
+
+    private function phpVersionToPortNumber($version) {
+        $parsedVersion = intval(str_replace('.', '', $version));
+        if ($parsedVersion < 100) {
+            $parsedVersion = '0'.$parsedVersion;
+        }
+
+        return '9' . $parsedVersion;
     }
 }
