@@ -64,7 +64,8 @@ class Apache extends Command {
      */
     public function start($path, $config) {
         $this->initialise($config);
-        // $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
+
+        $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
     }
 
     /**
