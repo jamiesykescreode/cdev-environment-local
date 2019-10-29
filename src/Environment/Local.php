@@ -30,6 +30,11 @@ class Local extends Environment
     private $_apache;
 
     /**
+     * @var \Cdev\Local\Environment\System\Brew\MySql
+     */
+    private $_mysql;
+
+    /**
      * @param Framework $framework
      * @param Config $config
      * @return null
@@ -37,11 +42,13 @@ class Local extends Environment
     public function __construct(
         Framework $framework,
         Config $config,
-        Command $apache
+        Command $apache,
+        Command $mysql
     ) {
         $this->_framework = $framework;
         $this->_config = $config;
         $this->_apache = $apache;
+        $this->_mysql = $mysql;
     }
 
     /**
@@ -63,6 +70,7 @@ class Local extends Environment
 
         $path = $this->_input->getOption('path');
         $this->_apache->start($path, $this->_config);
+        $this->_mysql->start($path, $this->_config);
     }
 
     /**
@@ -74,7 +82,7 @@ class Local extends Environment
 
         // Start out by removing the configuration from the apache hosts file.
         $path = $this->_input->getOption('path');
-        $this->_apache->stop($path);
+        $this->_apache->stop($this->_config);
     }
 
     /**
@@ -85,7 +93,7 @@ class Local extends Environment
         $this->logTitle('Nuking dev environment...');
         
         $path = $this->_input->getOption('path');
-        $this->_apache->nuke($path, $this->_config);
+        $this->_apache->nuke($this->_config);
     }
 
     public function status()

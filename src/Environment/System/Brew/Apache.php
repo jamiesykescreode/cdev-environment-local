@@ -39,7 +39,7 @@ class Apache extends Command {
      */
     private function initialise($config) {
         if (!$this->_apache->meetsDependencies()) {
-            echo "Ensure the following Apache modules are installed and loaded:\n " . implode("\n ", ApacheHelper::MODULE_DEPENDENCIES);
+            throw new \Exception("Ensure the following Apache modules are installed and loaded:\n " . implode("\n ", ApacheHelper::MODULE_DEPENDENCIES));
         }
 
         $hostname = $this->_configHelper->getHostname($config);
@@ -70,13 +70,12 @@ class Apache extends Command {
      * @param string $path
      * @return void
      */
-    public function stop($path)
+    public function stop($config)
     {
-        $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'stop'], $path);
+        $this->_apache->removeHost($this->_configHelper->getHostname($config));
     }
 
-    public function nuke($path, $config) {
-        $this->stop($path);
-        $this->_apache->removeHost($this->_configHelper->getHostname($config));
+    public function nuke($config) {
+        $this->stop($config);
     }
 }

@@ -18,6 +18,7 @@
             <argument type="service" id="cdev.environment.framework" />
             <argument type="service" id="cdev.config" />
             <argument type="service" id="cdev.system.brew_apache" />
+            <argument type="service" id="cdev.system.brew_mysql" />
         </service>
 
 
@@ -29,6 +30,11 @@
         <service id="cdev.system.brew_apache"
             class="Cdev\Local\Environment\System\Brew\Apache">
             <argument type="service" id="cdev.system.helpers.apache" />
+            <argument type="service" id="cdev.system.config" />
+        </service>
+
+        <service id="cdev.system.brew_mysql"
+            class="Cdev\Local\Environment\System\Brew\MySql">
             <argument type="service" id="cdev.system.config" />
         </service>
 

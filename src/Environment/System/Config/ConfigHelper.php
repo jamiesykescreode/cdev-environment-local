@@ -64,4 +64,8 @@ class ConfigHelper {
     public static function getPhpVersion($config) {
         return $config->get('local')['php-version'];
     }
+
+    public static function getProjectName($config) {
+        return $config->get('local')['name'];
+    }
 }
