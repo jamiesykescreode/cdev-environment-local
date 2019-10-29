@@ -36,7 +36,6 @@ class Apache extends Command {
 
     /**
      * Initialises the Apache Setup (create hosts).
-     * @return void
      */
     private function initialise($config) {
         if (!$this->_apache->meetsDependencies()) {
@@ -62,7 +61,6 @@ class Apache extends Command {
      */
     public function start($path, $config) {
         $this->initialise($config);
-
         $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
     }
 
@@ -75,5 +73,10 @@ class Apache extends Command {
     public function stop($path)
     {
         $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'stop'], $path);
+    }
+
+    public function nuke($path, $config) {
+        $this->stop($path);
+        $this->_apache->removeHost($this->_configHelper->getHostname($config));
     }
 }

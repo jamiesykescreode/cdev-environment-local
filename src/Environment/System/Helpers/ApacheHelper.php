@@ -126,7 +126,41 @@ class ApacheHelper {
         $this->_configuration->writeConfig($this->configPath, 'apache');
     }
 
-    // TODO: Add some functionality to remove a host.
+    /**
+     * Removes the host from apach configuration.
+     *
+     * @param string $hostname
+     *    Hostname of environment.
+     * @param \Cdev\Local\Environment\System\Config\ConfigHelper $config
+     *    Configuration helper class to get various configuration options from.
+     */
+    public function removeHost($hostname) {
+        $this->loadApacheConfigFile($this->configPath);
+        $i = 0;
+        while($item = $this->_root_node->getItem('comment', null, null, null, $i++)) {
+            // Comment doesn't contain the hostname so skip it.
+            if (strpos($item->content, $hostname) === FALSE) {
+                continue;
+            }
+
+            // Remove comment.
+            $item->removeItem();
+        }
+
+        $i = 0;
+        while ($item = $this->_root_node->getItem('section', 'VirtualHost', null, null, $i++)) {
+            $matches = $this->childHostnameMatches($item, $hostname);
+
+            if ($matches) {
+                $item->removeItem();
+            }            
+        }
+
+        // Remove any blank lines at bottom of file.
+        $this->removeLastLineIfBlank($this->_root_node->children);
+
+        $this->_configuration->writeConfig($this->configPath, 'apache');
+    }
 
     /**
      * Checks if the dependencies for the existing apache configuration work.
@@ -196,5 +230,38 @@ class ApacheHelper {
         }
 
         return '9' . $parsedVersion;
+    }
+
+    /**
+     * Checks if child hostnames match the provided hostname.
+     *
+     * @param \ConfigContainer $item
+     * @param string $hostname
+     * @return bool
+     */
+    private function childHostnameMatches($item, $hostname) {
+        $isMatch = false;
+        foreach ($item->children as $child) {
+            if (strpos($child->content, $hostname) === FALSE) {
+                continue;
+            }
+
+            $isMatch = true;
+        }
+
+        return $isMatch;
+    }
+
+    /**
+     * Removes the last line of the apache config if it's blank.
+     *
+     * @param \ConfigContainer $children
+     */
+    private function removeLastLineIfBlank(&$children) {
+        foreach ($children as $key => &$child) {
+            if ($key == (count($this->_root_node->children) - 1) && $child->type == 'blank') {
+                $child->removeItem();
+            }
+        }
     }
 }

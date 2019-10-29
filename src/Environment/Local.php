@@ -54,6 +54,9 @@ class Local extends Environment
         $this->_input = $input;
     }
 
+    /**
+     * Functionality that runs on env:start.
+     */
     public function start()
     {
         $this->logTitle('Starting dev environment...');
@@ -62,37 +65,42 @@ class Local extends Environment
         $this->_apache->start($path, $this->_config);
     }
 
+    /**
+     * Functionality that runs on env:stop.
+     */
     public function stop()
     {
         $this->logTitle('Stopping dev environment...');
 
+        // Start out by removing the configuration from the apache hosts file.
         $path = $this->_input->getOption('path');
         $this->_apache->stop($path);
     }
 
+    /**
+     * Functionality associated with env:nuke.
+     */
     public function nuke()
     {
-        // TODO: Decide on what to do here. Do we remove the site from configuration 
-        // or just state that it's not supported.
         $this->logTitle('Nuking dev environment...');
-        $this->displayInstallationMessage();
+        
+        $path = $this->_input->getOption('path');
+        $this->_apache->nuke($path, $this->_config);
     }
 
     public function status()
     {
-        $this->logTitle('Environment status');
         $this->displayInstallationMessage();
     }
 
     public function cleanup()
     {
-        $this->logTitle('Cleaning up Docker leftovers...');
+        // TODO: Maybe do a removal of the hosts config here.
         $this->displayInstallationMessage();
     }
 
     public function ssh()
     {
-        $this->logTitle('Connecting to server...');
         $this->displayInstallationMessage();
     }
 
@@ -104,7 +112,6 @@ class Local extends Environment
 
     public function runCommand(array $command = array(), $elevatePermissions = false)
     {
-        $this->logTitle('Running command...');
         $this->displayInstallationMessage();
     }
 
