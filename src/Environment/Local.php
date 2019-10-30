@@ -37,7 +37,8 @@ class Local extends Environment
     /**
      * @param Framework $framework
      * @param Config $config
-     * @return null
+     * @param Apache $apache
+     * @param MySql $mysql
      */
     public function __construct(
         Framework $framework,
