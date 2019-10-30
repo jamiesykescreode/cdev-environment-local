@@ -12,7 +12,7 @@ class ConfigHelper {
      * @var string
      *    Which suffix should be used to append to hostnames.
      */
-    const HOST_SUFFIX = '.dev.com';
+    const HOST_SUFFIX = '.local';
 
     /**
      * Cdev Configuration.
