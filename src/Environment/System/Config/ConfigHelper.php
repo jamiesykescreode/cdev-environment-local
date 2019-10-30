@@ -61,7 +61,7 @@ class ConfigHelper {
      * @return string
      *     Version of PHP site is configured to use e.g. "7.2".
      */
-    public static function getPhpVersion($config) {
+    public static function getPhpVersion(Config $config) {
         return $config->get('local')['php-version'];
     }
 
@@ -71,7 +71,7 @@ class ConfigHelper {
      * @param Creode\Cdev\Config $config
      * @return string
      */
-    public static function getProjectName($config) {
+    public static function getProjectName(Config $config) {
         return $config->get('local')['name'];
     }
 
@@ -81,7 +81,7 @@ class ConfigHelper {
      * @param Creode\Cdev\Config $config
      * @return string|bool
      */
-    public static function getApacheSubPath($config) {
+    public static function getApacheSubPath(Config $config) {
         return $config->get('local')['apache-subpath'] ?: FALSE;
     }
 }
