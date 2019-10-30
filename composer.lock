@@ -1,0 +1,139 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "70f951392d7e3e4f1f04515d75818b69",
+    "packages": [
+        {
+            "name": "pear/config",
+            "version": "dev-trunk",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FelixAuer/Config.git",
+                "reference": "fa91641a48084d6d55bdc98421994c932febea5a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FelixAuer/Config/zipball/fa91641a48084d6d55bdc98421994c932febea5a",
+                "reference": "fa91641a48084d6d55bdc98421994c932febea5a",
+                "shasum": ""
+            },
+            "require": {
+                "pear/pear_exception": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "suggest": {
+                "pear/xml_parser": "Install optionally via your project's composer.json"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Config": "./"
+                }
+            },
+            "include-path": [
+                "./"
+            ],
+            "license": [
+                "PHP License"
+            ],
+            "authors": [
+                {
+                    "email": "bmansion@mamasam.com",
+                    "name": "Bertrand Mansion",
+                    "role": "Lead"
+                },
+                {
+                    "email": "ryansking@php.net",
+                    "name": "Ryan King",
+                    "role": "Lead"
+                },
+                {
+                    "email": "aashley@php.net",
+                    "name": "Adam Ashley",
+                    "role": "Lead"
+                },
+                {
+                    "email": "aharvey@php.net",
+                    "name": "Adam Harvey",
+                    "role": "Lead"
+                }
+            ],
+            "description": "More info available on: http://pear.php.net/package/Config",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Config",
+                "source": "https://github.com/pear/Config"
+            },
+            "time": "2019-07-12T10:51:18+00:00"
+        },
+        {
+            "name": "pear/pear_exception",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/PEAR_Exception.git",
+                "reference": "8c18719fdae000b690e3912be401c76e406dd13b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/8c18719fdae000b690e3912be401c76e406dd13b",
+                "reference": "8c18719fdae000b690e3912be401c76e406dd13b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=4.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "class",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "PEAR": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "."
+            ],
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Helgi Thormar",
+                    "email": "dufuz@php.net"
+                },
+                {
+                    "name": "Greg Beaver",
+                    "email": "cellog@php.net"
+                }
+            ],
+            "description": "The PEAR Exception base class.",
+            "homepage": "https://github.com/pear/PEAR_Exception",
+            "keywords": [
+                "exception"
+            ],
+            "time": "2015-02-10T20:07:52+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "pear/config": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
