@@ -5,7 +5,7 @@ namespace Cdev\Local\Environment\System\Brew;
 use Creode\System\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class for handling mysql cli communication.
@@ -47,6 +47,9 @@ class MySql extends Command {
         // TODO: If it doesn't then create it and import from the dbs folder.
         if (!$databaseExists) {
             $this->createDatabase($path, $projectName);
+
+            // Trigger database import.
+            $this->importDatabase();
         }
 
     }
@@ -88,7 +91,7 @@ class MySql extends Command {
      */
     private function databaseExists($dbName) {
         // Find if database exists.
-        $p = new Process('mysqlshow | grep -w "fitch"');
+        $p = new Process('mysqlshow | grep -w "' . $dbName . '"');
         $p->run();
 
         if (!$p->isSuccessful()) {
@@ -106,7 +109,7 @@ class MySql extends Command {
     }
 
     /**
-     * Undocumented function
+     * Runs command to create the database.
      *
      * @param string $path
      *    Path to current directory.
@@ -115,5 +118,38 @@ class MySql extends Command {
      */
     private function createDatabase($path, $dbName) {
         $this->runExternalCommand('mysql -u root -p -e "CREATE DATABASE ' . $dbName . '"', [], $path);
+    }
+
+    /**
+     * Undocumented function
+     */
+    private function importDatabase() {
+        if (!$files = $this->loadSqlFiles()) {
+            return false;
+        }
+
+        // Runs through and imports them.
+
+        // TODO: What would be nice is to check if a progress bar is installed and use it. (pv sqlfile.sql | mysql -uxxx -pxxxx dbname)
+
+        // 
+    }
+
+    private function loadSqlFiles() {
+        // Load all the files from the db folder.
+        $finder = new Finder();
+
+        $finder->files()->in(getcwd() . '/db');
+
+        if ($finder->hasResults()) {
+            return false;
+        }
+
+        foreach ($finder as $file) {
+            var_dump($file);
+            die;
+        }
+
+        // Sort them alphabetically.
     }
 }
