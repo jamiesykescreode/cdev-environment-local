@@ -2,9 +2,10 @@
 
 namespace Cdev\Local\Environment\System\Brew;
 
-use Creode\System\Command;
+use Cdev\Local\Environment\System\Command;
 use Cdev\Local\Environment\System\Helpers\ApacheHelper;
 use Cdev\Local\Environment\System\Config\ConfigHelper;
+use Creode\Cdev\Config;
 
 class Apache extends Command {
     const COMMAND = 'apachectl';
@@ -47,17 +48,13 @@ class Apache extends Command {
 
         // Check if host exists.
         if (!$this->_apache->siteConfigExists($path)) {
-            echo 'Adding a new configuration for `'. $hostname . '` inside `' . $this->_apache->configPath . '`.';
+            echo '>>> Adding a new configuration for `'. $hostname . '` inside `' . $this->_apache->configPath . '`.';
             $this->_apache->addHost($hostname, $path, $config);
         }
     }
 
     /**
-     * Starts up an Apache Server.
-     *
-     * @param string $path
-     * @param Creode\Cdev\Config $config
-     * @return void
+     * {@inheritdoc}
      */
     public function start($path, $config) {
         $this->initialise($config);
@@ -65,17 +62,20 @@ class Apache extends Command {
     }
 
     /**
-     * Stops an Apache Server.
-     *
-     * @param string $path
-     * @return void
+     * {@inheritdoc}
      */
-    public function stop($config)
+    public function stop($path, Config $config)
     {
+        $hostname = $this->_configHelper->getHostname($config);
+
+        echo '>>> Removing host configuration for `' . $hostname . '`';
         $this->_apache->removeHost($this->_configHelper->getHostname($config));
     }
 
-    public function nuke($config) {
-        $this->stop($config);
+    /**
+     * {@inheritdoc}
+     */
+    public function nuke($path, Config $config) {
+        $this->stop($path, $config);
     }
 }

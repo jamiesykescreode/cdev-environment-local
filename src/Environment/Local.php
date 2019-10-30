@@ -83,7 +83,7 @@ class Local extends Environment
 
         // Start out by removing the configuration from the apache hosts file.
         $path = $this->_input->getOption('path');
-        $this->_apache->stop($this->_config);
+        $this->_apache->stop($path, $this->_config);
     }
 
     /**
@@ -94,7 +94,7 @@ class Local extends Environment
         $this->logTitle('Nuking dev environment...');
         
         $path = $this->_input->getOption('path');
-        $this->_apache->nuke($this->_config);
+        $this->_apache->nuke($path, $this->_config);
         $this->_mysql->nuke($path, $this->_config);
     }
 

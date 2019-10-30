@@ -2,10 +2,11 @@
 
 namespace Cdev\Local\Environment\System\Brew;
 
-use Creode\System\Command;
+use Cdev\Local\Environment\System\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Finder\Finder;
+use Creode\Cdev\Config;
 
 /**
  * Class for handling mysql cli communication.
@@ -53,10 +54,7 @@ class MySql extends Command {
     }
 
     /**
-     * Starts mysql services
-     *
-     * @param string $path
-     * @param Creode\Cdev\Config $config
+     * {@inheritdoc}
      */
     public function start($path, $config) {
         $this->initialise($path, $config);
@@ -64,11 +62,16 @@ class MySql extends Command {
     }
 
     /**
-     * Drops the database for the current environment.
-     *
-     * @param Creode\Cdev\Config $config
+     * {@inheritdoc}
      */
-    public function nuke($path, $config) {
+    public function stop($path, $config) {
+        $this->notSupported();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function nuke($path, Config $config) {
         $projectName = $this->_configHelper->getProjectName($config);
         $this->runExternalCommand('mysql -u root -p -e "DROP DATABASE IF EXISTS ' . $projectName . '"', [], $path);
     }

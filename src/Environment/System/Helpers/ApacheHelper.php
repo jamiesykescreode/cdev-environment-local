@@ -7,6 +7,7 @@ use Config as PearConfig;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Cdev\Local\Environment\System\Config\ConfigHelper;
+use Creode\Cdev\Config;
 
 /**
  * Contains functions to help with apache setup.
@@ -103,7 +104,7 @@ class ApacheHelper {
      * @param \Cdev\Local\Environment\System\Config\ConfigHelper $config
      *    Configuration helper class to get various configuration options from.
      */
-    public function addHost($hostname, $path, $config) {
+    public function addHost($hostname, $path, Config $config) {
         // Get the version of PHP from Config.
         $phpVersion = ConfigHelper::getPhpVersion($config);
 
