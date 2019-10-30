@@ -23,7 +23,8 @@ class SetupEnvCommand extends ConfigurationCommand
             'local' => [
                 'name' => null,
                 'package' => null,
-                'php-version' => null
+                'php-version' => null,
+                'apache-subpath' => null,
             ]
         ]
     ];
@@ -152,6 +153,14 @@ class SetupEnvCommand extends ConfigurationCommand
         );
 
         $this->_config['config']['local']['php-version'] = $helper->ask($this->_input, $this->_output, $question);
+
+        $default = $this->_config['config']['local']['apache-subpath'];
+        $question = new Question(
+            '<question>Subfolder for Apache i.e. "web"</question> : [Current: <info>' . (isset($default) ? $default : '') . '</info>]',
+            $default
+        );
+
+        $this->_config['config']['local']['apache-subpath'] = $helper->ask($this->_input, $this->_output, $question);
 
         if ($this->_usingLocalBuilds) {
             $this->composerInit();

@@ -10,3 +10,7 @@ The Local environment plugin for cdev
  - proxy_module (shared)
  - proxy_http_module (shared)
  - proxy_fcgi_module (shared)
+
+## Development
+
+ - Sub folder for Apache: This is for website which are generally setup using composer where the main entrypoint (index.php file) to the application exists inside a subfolder and not directly inside the src folder. 

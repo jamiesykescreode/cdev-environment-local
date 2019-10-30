@@ -65,7 +65,23 @@ class ConfigHelper {
         return $config->get('local')['php-version'];
     }
 
+    /**
+     * Get Project Name configuration value.
+     *
+     * @param Creode\Cdev\Config $config
+     * @return string
+     */
     public static function getProjectName($config) {
         return $config->get('local')['name'];
+    }
+
+    /**
+     * Get subpath configuration.
+     *
+     * @param Creode\Cdev\Config $config
+     * @return string|bool
+     */
+    public static function getApacheSubPath($config) {
+        return $config->get('local')['apache-subpath'] ?: FALSE;
     }
 }

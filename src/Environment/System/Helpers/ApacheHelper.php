@@ -118,6 +118,12 @@ class ApacheHelper {
         $this->_root_node->createComment('Configuration for ' . $hostname);
         $vhost = $this->_root_node->createSection('VirtualHost', array('*:80'));
 
+        // Add a subpath configuration for Apache.
+        if ($subPath = ConfigHelper::getApacheSubPath($config)) {
+            $path .= '/' . $subPath;
+        }
+
+        // Setup directives for the virtual host.
         $vhost->createDirective('DocumentRoot',  '"' . $path . '"');
         $vhost->createDirective('ServerName', $hostname);
         $vhost->createDirective('ProxyPassMatch', $listenLine);
