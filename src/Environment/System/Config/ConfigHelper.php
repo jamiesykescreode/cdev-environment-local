@@ -50,8 +50,8 @@ class ConfigHelper {
      * @return string
      *    Path to the website.
      */
-    public static function getSitePath(Config $config) {
-        $path = getcwd() . '/' . $config->get('dir')['src'];
+    public static function getSitePath($path, Config $config) {
+        $path = $path . '/' . $config->get('dir')['src'];
 
         // Add a subpath configuration for Apache.
         if ($subPath = self::getApacheSubPath($config)) {

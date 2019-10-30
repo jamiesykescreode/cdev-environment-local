@@ -38,13 +38,13 @@ class Apache extends Command {
     /**
      * Initialises the Apache Setup (create hosts).
      */
-    private function initialise($config) {
+    private function initialise($path, $config) {
         if (!$this->_apache->meetsDependencies()) {
             throw new \Exception("Ensure the following Apache modules are installed and loaded:\n " . implode("\n ", ApacheHelper::MODULE_DEPENDENCIES));
         }
 
         $hostname = $this->_configHelper->getHostname($config);
-        $path = $this->_configHelper->getSitePath($config);
+        $path = $this->_configHelper->getSitePath($path, $config);
 
         // Check if host exists.
         if (!$this->_apache->siteConfigExists($path)) {
@@ -57,7 +57,7 @@ class Apache extends Command {
      * {@inheritdoc}
      */
     public function start($path, $config) {
-        $this->initialise($config);
+        $this->initialise($path, $config);
         $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
     }
 
