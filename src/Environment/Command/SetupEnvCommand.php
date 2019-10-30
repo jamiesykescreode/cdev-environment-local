@@ -146,10 +146,11 @@ class SetupEnvCommand extends ConfigurationCommand
 
         $phpVersions = $this->getAvailablePHPVersions();
 
+        $default = $this->_config['config']['local']['php-version'];
         $question = new ChoiceQuestion(
-            'Please select version of PHP for this site.',
+            '<question>Please select version of PHP for this site.</question> : [Current: <info>' . (isset($default) ? $default : end(array_keys($phpVersions))) . '</info>]',
             $phpVersions,
-            count($phpVersions) - 1
+            $default
         );
 
         $this->_config['config']['local']['php-version'] = $helper->ask($this->_input, $this->_output, $question);
@@ -159,6 +160,14 @@ class SetupEnvCommand extends ConfigurationCommand
             '<question>Subfolder for Apache i.e. "web"</question> : [Current: <info>' . (isset($default) ? $default : '') . '</info>]',
             $default
         );
+
+        $question->setValidator(function ($value) {
+            if (!filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                return null;
+            }
+            
+            return $value;
+        });
 
         $this->_config['config']['local']['apache-subpath'] = $helper->ask($this->_input, $this->_output, $question);
 

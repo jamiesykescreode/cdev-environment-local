@@ -44,11 +44,11 @@ class MySql extends Command {
         $projectName = $this->_configHelper->getProjectName($config);
         $databaseExists = $this->databaseExists($projectName);
 
+        // TODO: If it doesn't then create it and import from the dbs folder.
         if (!$databaseExists) {
             $this->createDatabase($path, $projectName);
         }
 
-        // TODO: If it doesn't then create it and import from the dbs folder.
     }
 
     /**
@@ -87,14 +87,15 @@ class MySql extends Command {
      *    If database exists
      */
     private function databaseExists($dbName) {
-        $process = new Process(['mysqlshow','|', 'grep', '-w', '"' . $dbName . '"']);
-        $process->run(null, array('dbName' => $dbName));
+        // Find if database exists.
+        $p = new Process('mysqlshow | grep -w "fitch"');
+        $p->run();
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+        if (!$p->isSuccessful()) {
+            throw new ProcessFailedException($p);
         }
         
-        $exists = trim($process->getOutput());
+        $exists = trim($p->getOutput());
 
         $databaseExists = false;
         if ($exists && strpos($exists, $dbName)) {
