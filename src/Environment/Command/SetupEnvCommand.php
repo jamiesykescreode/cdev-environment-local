@@ -1,124 +1,35 @@
 <?php
-namespace Cdev\Docker\Environment\Command;
+
+namespace Cdev\Local\Environment\Command;
 
 use Creode\Cdev\Command\ConfigurationCommand;
 use Creode\Cdev\Config;
-use Cdev\Docker\Environment\Docker;
-use Cdev\Docker\Environment\System\Compose\Compose;
-use Cdev\Docker\Environment\System\Sync\Sync;
+use Cdev\Local\Environment\Local;
 use Creode\System\Composer\Composer;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class SetupEnvCommand extends ConfigurationCommand
 {
     protected $_config = [
         'config' => [
-            'docker' => [
+            'local' => [
                 'name' => null,
                 'package' => null,
-                'port' => null,
-                'sync' => [
-                    'active' => false,
-                    'version' => '2',
-                    'options' => [
-                        'verbose' => true
-                    ],
-                    'syncs' => [
-                    ]
-                ],
-                'compose' => [
-                    'version' => '2',
-                    'services' => []
-                ]
+                'php-version' => null,
+                'apache-subpath' => null,
             ]
         ]
     ];
 
     protected $_previousConfig;
-
-    private $_containers = [
-        'MySQL' => [
-            'defaultActive' => true,
-            'node' => 'mysql',
-            'command' => Container\Mysql::COMMAND_NAME,
-            'config' => Container\Mysql::CONFIG_DIR . '/' .
-                Container\Mysql::CONFIG_FILE
-        ],
-        'PHP' => [
-            'defaultActive' => true,
-            'node' => 'php',
-            'command' => Container\Php::COMMAND_NAME,
-            'config' => Container\Php::CONFIG_DIR . '/' .
-                Container\Php::CONFIG_FILE,
-            'links' => [
-                'mysql',
-                'mailcatcher',
-                'redis'
-            ],
-            'sync' => [
-                'name' => 'project-website-code-sync',
-                'default' => [
-                    'src' => 'src',
-                    'sync_userid' => 1000, # www-data
-                    'sync_strategy' => 'unison',
-                    'sync_excludes' => [
-                        '.sass-cache',
-                        'sass',
-                        'sass-cache',
-                        'bower.json',
-                        'package.json',
-                        'Gruntfile',
-                        'bower_components',
-                        'node_modules',
-                        '.gitignore',
-                        '.git',
-                        '*.scss',
-                        '*.sass'
-                    ]
-                ]
-            ]
-        ],
-        'Mailcatcher' => [
-            'defaultActive' => true,
-            'node' => 'mailcatcher',
-            'command' => Container\Mailcatcher::COMMAND_NAME,
-            'config' => Container\Mailcatcher::CONFIG_DIR . '/' .
-                Container\Mailcatcher::CONFIG_FILE
-        ],
-        'Redis' => [
-            'defaultActive' => false,
-            'node' => 'redis',
-            'command' => Container\Redis::COMMAND_NAME,
-            'config' => Container\Redis::CONFIG_DIR . '/' .
-                Container\Redis::CONFIG_FILE
-        ],
-        'Drush' => [
-            'defaultActive' => false,
-            'node' => 'drush',
-            'command' => Container\Drush::COMMAND_NAME,
-            'config' => Container\Drush::CONFIG_DIR . '/' .
-                Container\Drush::CONFIG_FILE,
-            'depends' => [
-                'php',
-                'mysql'
-            ],
-            'frameworks' => [
-                'Drupal8',
-                'Drupal7'
-            ]
-        ]   
-    ];
 
     /**
      * @var boolean
@@ -126,9 +37,9 @@ class SetupEnvCommand extends ConfigurationCommand
     private $_usingLocalBuilds = false;
 
     /**
-     * @var Docker
+     * @var Local
      */
-    protected $_docker;
+    protected $_local;
 
     /**
      * @var Composer
@@ -142,16 +53,16 @@ class SetupEnvCommand extends ConfigurationCommand
 
     /**
      * Constructor
-     * @param Docker $docker
+     * @param Local $local
      * @param Composer $composer
      * @return null
      */
     public function __construct(
-        Docker $docker,
+        Local $local,
         Composer $composer,
         Filesystem $fs
     ) {
-        $this->_docker = $docker;
+        $this->_local = $local;
         $this->_composer = $composer;
         $this->_fs = $fs;
 
@@ -160,9 +71,9 @@ class SetupEnvCommand extends ConfigurationCommand
 
     protected function configure()
     {
-        $this->setName('docker:setup');
+        $this->setName('brew:setup');
         $this->setHidden(true);
-        $this->setDescription('Sets up the docker environment config');
+        $this->setDescription('Sets up the local environment config');
 
         $this->addOption(
             'path',
@@ -201,25 +112,23 @@ class SetupEnvCommand extends ConfigurationCommand
     {
         $helper = $this->getHelper('question');
 
-        $default = $this->_config['config']['docker']['name'];
+        $default = $this->_config['config']['local']['name'];
         $question = new Question(
-            '<question>Project name/domain (xxxx).docker</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
+            '<question>Project name/domain (xxxx).dev.com</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
             $default
         );
         $question->setValidator(function ($answer) {
-            if (!filter_var('http://'.$answer.'.com', FILTER_VALIDATE_URL)) {
+            if (!filter_var('http://' . $answer, FILTER_VALIDATE_URL)) {
                 throw new \RuntimeException(
-                    'Docker project name must be suitable for use in domain name (no spaces, underscores etc.)'
+                    'Local project name must be suitable for use in domain name (no spaces, underscores etc.)'
                 );
             }
 
             return $answer;
         });
-        $this->_config['config']['docker']['name'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['name'] = $helper->ask($this->_input, $this->_output, $question);
 
-
-
-        $default = $this->_config['config']['docker']['package'];
+        $default = $this->_config['config']['local']['package'];
         $question = new Question(
             '<question>Composer package name (<vendor>/<name>)</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
             $default
@@ -233,46 +142,34 @@ class SetupEnvCommand extends ConfigurationCommand
 
             return $answer;
         });
-        $this->_config['config']['docker']['package'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['package'] = $helper->ask($this->_input, $this->_output, $question);
 
+        $phpVersions = $this->getAvailablePHPVersions();
 
-
-        $default = $this->_config['config']['docker']['port'];
-        $question = new Question(
-            '<question>Environment port suffix (3 digits - e.g. 014)</question> : [Current: <info>' . (isset($default) ? $default : 'None') . '</info>]',
+        $default = $this->_config['config']['local']['php-version'];
+        $question = new ChoiceQuestion(
+            '<question>Please select version of PHP for this site.</question> : [Current: <info>' . (isset($default) ? $default : end(array_keys($phpVersions))) . '</info>]',
+            $phpVersions,
             $default
         );
-        $question->setValidator(function ($answer) {
-            if (!preg_match('/^[0-9]{3}$/', $answer)) {
-                throw new \RuntimeException(
-                    'Docker port number must be a 3 digit number'
-                );
-            }
 
-            return $answer;
-        });
-        $this->_config['config']['docker']['port'] = $helper->ask($this->_input, $this->_output, $question);
+        $this->_config['config']['local']['php-version'] = $helper->ask($this->_input, $this->_output, $question);
 
-
-        $default = $this->_config['config']['docker']['sync']['active'];
-        $optionsLabel = $default ? 'Y/n' : 'y/N';
-        $question = new ConfirmationQuestion(
-            '<question>Use docker-sync? ' . $optionsLabel . '</question> : [Current: <info>' . ($default ? 'Yes' : 'No') . '</info>]',
-            $default,
-            '/^(y|j)/i'
+        $default = $this->_config['config']['local']['apache-subpath'];
+        $question = new Question(
+            '<question>Subfolder for Apache i.e. "web"</question> : [Current: <info>' . (isset($default) ? $default : '') . '</info>]',
+            $default
         );
-        $this->_config['config']['docker']['sync']['active'] = $helper->ask($this->_input, $this->_output, $question);
 
-        if ($this->_config['config']['docker']['sync']['active']) {
-            $this->askDockerSyncQuestions();
-        }
+        $question->setValidator(function ($value) {
+            if (!filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                return null;
+            }
+            
+            return $value;
+        });
 
-        $this->askDockerComposeQuestions();
-        $this->saveDockerComposeConfig();
-
-        if ($this->_config['config']['docker']['sync']['active']) {
-            $this->saveDockerSyncConfig();
-        }
+        $this->_config['config']['local']['apache-subpath'] = $helper->ask($this->_input, $this->_output, $question);
 
         if ($this->_usingLocalBuilds) {
             $this->composerInit();
@@ -280,284 +177,7 @@ class SetupEnvCommand extends ConfigurationCommand
     }
 
     /**
-     * Asks questions to setup docker sync
-     * @return null
-     */
-    private function askDockerSyncQuestions()
-    {
-        $helper = $this->getHelper('question');
-
-        $syncs = &$this->_config['config']['docker']['sync']['syncs'];
-
-        unset($syncs['project-website-code-sync']);
-
-        $previousProjectName = isset($this->_previousConfig['config']['docker']['name'])
-                                ? $this->_previousConfig['config']['docker']['name']
-                                : 'project';
-
-        foreach($syncs as $name => $values) {
-            $newName = str_replace(
-                $previousProjectName,
-                $this->_config['config']['docker']['name'],
-                $name
-            );
-
-            $values['src'] = '../' . $this->_config['config']['dir']['src'];
-
-            $default = implode(', ', $values['sync_excludes']);
-            $question = new Question(
-                '<question>Exclusions</question> : [Current: <info>' . $default . '</info>]',
-                $default
-            );
-            $question->setValidator(function ($answer) {
-                if (!preg_match('/^[-\w\s*-_.]+(?:,[-\w\s*-_.]*)*$/', $answer)) {
-                    throw new \RuntimeException(
-                        'Exclusions must be a comma separated list'
-                    );
-                }
-
-                return $answer;
-            });
-
-            $answer = $helper->ask($this->_input, $this->_output, $question);
-            $answer = str_replace(' ', '', $answer);
-
-            $values['sync_excludes'] = explode(',', $answer);
-
-            unset($syncs[$name]);
-            $syncs[$newName] = $values;
-        }
-    }
-
-    /**
-     * Asks questions to setup docker compose
-     * @return null
-     */
-    private function askDockerComposeQuestions()
-    {
-        $helper = $this->getHelper('question');
-
-        foreach($this->_containers as $label => $container) {
-            $node = $container['node'];
-
-            if (isset($container['frameworks'])) {
-                if (!in_array(
-                    $this->_config['config']['environment']['framework'],
-                    $container['frameworks']
-                )) {
-                    $this->_output->writeln('<info>Skipping ' .$label . ' setup as ' . $this->_config['config']['environment']['framework'] . ' is not supported</info>');
-                    $this->_config['config']['docker']['compose']['services'][$node]['active'] = false;
-                    unset($this->_containers[$label]);
-                    continue;
-                }
-            }
-
-            if (isset($container['depends'])) {
-                foreach($container['depends'] as $dependency) {
-                    if (!$this->_config['config']['docker']['compose']['services'][$dependency]['active']) {
-                        $this->_output->writeln('<info>Skipping ' .$label . ' setup as ' . $dependency . ' is not active</info>');
-                        $this->_config['config']['docker']['compose']['services'][$node]['active'] = false;
-                        unset($this->_containers[$label]);
-                        continue;
-                    }
-                }
-            }
-
-            $useContainer = $this->containerRequired(
-                $label,
-                $this->_config['config']['docker']['compose']['services'][$node]['active'],
-                $container['defaultActive']
-            );
-
-            if ($useContainer) {
-                $this->configureContainer(
-                    $label
-                );
-            } else {
-                unset($this->_containers[$label]);
-            }
-        }
-
-        // build links 
-        foreach($this->_containers as $label => $container) {
-            if (isset($container['links'])) {
-                $activeLinks = [];
-
-                foreach($container['links'] as $linkNode) {
-                    if ($this->_config['config']['docker']['compose']['services'][$linkNode]['active']) {
-                        $activeLinks[] = $linkNode;
-                    }
-                }
-
-                $node = $container['node'];
-
-                if (count($activeLinks) > 0) {
-                    $this->_config['config']['docker']['compose']['services'][$node]['links'] = $activeLinks;
-                } else {
-                    unset($this->_config['config']['docker']['compose']['services'][$node]['links']);
-                }
-            }
-        }
-    }
-
-    /**
-     * Asks whether a container is required and saves results
-     * @param string $label 
-     * @param string|array &$config 
-     * @param boolean $defaultActive
-     * @return boolean
-     */
-    private function containerRequired($label, &$config, $defaultActive) 
-    {
-        $helper = $this->getHelper('question');
-
-        $required = ((is_null($config) && $defaultActive) || $config);
-
-        $optionsLabel = $required ? 'Y/n' : 'y/N';
-        $question = new ConfirmationQuestion(
-            '<question>' . $label . '? ' . $optionsLabel . '</question> : [Current: <info>' . ($required ? 'Yes' : 'No') . '</info>]',
-            $required,
-            '/^(y|j)/i'
-        );
-        $config = $helper->ask($this->_input, $this->_output, $question);
-
-        return $config;
-    }
-
-    /**
-     * Asks whether to use an image or build the image from local scripts
-     * @param string $defaultBuild 
-     * @param string $defaultImage 
-     * @param array &$config
-     * @param array $builds
-     * @param array $images
-     */
-    private function buildOrImage(
-        $defaultBuild,
-        $defaultImage,
-        array &$config,
-        array $builds = [],
-        array $images = []
-    )
-    {
-        $helper = $this->getHelper('question');
-
-        $current = isset($config['build']) ? 'build' : (isset($config['image']) ? 'image' : null);
-        $default = isset($current) ? $current : 'image';        
-
-        $question = new ChoiceQuestion(
-            '<question>Build or Image:</question> [Current: <info>' . $default . '</info>]',
-            [
-                'build' => 'build',
-                'image' => 'image'
-            ],
-            $default
-        );
-        $question->setErrorMessage('Choice %s is invalid.');
-        $chosen = $helper->ask($this->_input, $this->_output, $question);
-
-        switch($chosen) {
-            case 'build':
-                $this->_usingLocalBuilds = true;
-
-                if (isset($config['image'])) {
-                    unset($config['image']);
-                }
-
-                $default = isset($config['build']) ? $config['build'] : $defaultBuild;
-
-                $question = new ChoiceQuestion(
-                    '<question>Build:</question> [Current: <info>' . $default . '</info>]',
-                    $builds,
-                    $default
-                );
-                $question->setErrorMessage('Build %s is invalid.');
-                $config['build'] = $helper->ask($this->_input, $this->_output, $question);
-                break;
-            case 'image':
-                if (isset($config['build'])) {
-                    unset($config['build']);
-                }
-
-                $default = isset($config['image']) ? $config['image'] : $defaultImage;
-
-                $question = new ChoiceQuestion(
-                    '<question>Image:</question> [Current: <info>' . $default . '</info>]',
-                    $images,
-                    $default
-                );
-                $question->setErrorMessage('Image %s is invalid.');
-                $config['image'] = $helper->ask($this->_input, $this->_output, $question);
-                break;
-        }
-    }
-
-    /**
-     * Saves the docker compose config file
-     * @return null
-     */
-    private function saveDockerComposeConfig()
-    {
-        $path = $this->_input->getOption('path');
-
-        $activeServices = [];
-
-        foreach($this->_containers as $label => $values) {
-            $configFile = Config::CONFIG_DIR . $values['config'];
-            $config = Yaml::parse(file_get_contents($configFile));
-            unset($config['active']);
-
-            $links = $this->getContainerLinks($values['node']);
-            if ($links) {
-                $config['links'] = $links;
-            } else {
-                unset($config['links']);
-            }
-
-            $activeServices[$values['node']] = $config;
-        }
-        
-        $configArray['version'] = '2';
-        $configArray['services'] = $activeServices;
-        
-
-        //check if volumes var is null. If is dont add to config file
-        $volumes = isset($this->_config['config']['docker']['compose']['volumes']) ? $this->_config['config']['docker']['compose']['volumes'] : null;
-        if(!is_null($volumes)){
-            $configArray['volumes'] = $volumes;
-        }
-        
-        $this->saveConfig($path . '/' . Config::CONFIG_DIR, Compose::FILE, $configArray);
-    }
-
-    /**
-     * Gets container links for a node
-     * @param string $nodeName 
-     * @return array
-     */
-    private function getContainerLinks($nodeName)
-    {
-        return isset($this->_config['config']['docker']['compose']['services'][$nodeName]['links'])
-            ? $this->_config['config']['docker']['compose']['services'][$nodeName]['links']
-            : false;
-    }
-
-    /**
-     * Saves the docker sync config file
-     * @return null
-     */
-    private function saveDockerSyncConfig()
-    {
-        $path = $this->_input->getOption('path');
-        
-        $config = $this->_config['config']['docker']['sync'];
-        unset($config['active']);
-
-        $this->saveConfig($path . '/' . Config::CONFIG_DIR, Sync::FILE, $config);
-    }
-        
-    /**
-     * Initialises composer and installs creode docker tools
+     * Initialises composer and installs creode local tools
      * @return type
      */
     private function composerInit()
@@ -578,10 +198,10 @@ class SetupEnvCommand extends ConfigurationCommand
 
         $this->_composer->init(
             $path,
-            $this->_config['config']['docker']['package'],
+            $this->_config['config']['local']['package'],
             [
-                '--require-dev', 'creode/docker:~1.0.0',
-                '--repository', '{"type": "vcs", "url": "git@codebasehq.com:creode/creode/docker.git"}'
+                '--require-dev', 'creode/local:~1.0.0',
+                '--repository', '{"type": "vcs", "url": "git@codebasehq.com:creode/creode/local.git"}'
             ]
         );
 
@@ -591,61 +211,28 @@ class SetupEnvCommand extends ConfigurationCommand
         $this->_composer->install($path);
     }
 
+    private function getAvailablePHPVersions() {
+        $process = new Process('brew services list | grep php@');
+        $process->run();
 
-    /**
-     * Runs the configuration command for this container
-     * @param String $containerName
-     * @return Array
-     */
-    private function configureContainer($containerName)
-    {
-        $container = $this->_containers[$containerName];
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
 
-        $command = $this->getApplication()->find($container['command']);
-        $useDockerSync = $this->_config['config']['docker']['sync']['active'];
+        $listedVersions = explode("\n", $process->getOutput());
 
-        $previousProjectName = isset($this->_previousConfig['config']['docker']['name'])
-                                ? $this->_previousConfig['config']['docker']['name']
-                                : 'project';
-
-        if ($useDockerSync && isset($container['sync'])) {
-            $sync = $container['sync'];
-
-            $volumeName = str_replace(
-                'project',
-                $this->_config['config']['docker']['name'],
-                $sync['name']
-            );
-
-            $previousVolumeName = str_replace(
-                'project',
-                $previousProjectName,
-                $sync['name']
-            );
-
-            $syncData = $sync['default'];
-            $syncData['src'] = $this->_config['config']['dir']['src'];
-
-            unset($this->_config['config']['docker']['sync']['syncs'][$sync['name']]);
-            unset($this->_config['config']['docker']['compose']['volumes'][$sync['name']]);
-            unset($this->_config['config']['docker']['sync']['syncs'][$previousVolumeName]);
-            unset($this->_config['config']['docker']['compose']['volumes'][$previousVolumeName]);
-            $this->_config['config']['docker']['sync']['syncs'][$volumeName] = $syncData;
-            $this->_config['config']['docker']['compose']['volumes'][$volumeName]['external'] = true;
-        } else {
-            $volumeName = false;
-        } 
-
-        $arguments = array(
-            'command' => $command,
-            '--path' => $this->_input->getOption('path'),
-            '--src' => $this->_config['config']['dir']['src'],
-            '--name' => $this->_config['config']['docker']['name'],
-            '--port' => $this->_config['config']['docker']['port'],
-            '--volume' => $volumeName
+        $filteredList = array_filter(
+            array_map(function($version) {
+                return substr($version, 0, strpos($version, ' '));
+            }, $listedVersions)
         );
 
-        $cmdInput = new ArrayInput($arguments);
-        $command->run($cmdInput, $this->_output);
+        foreach($filteredList as $key => $value) {
+            unset($filteredList[$key]);
+            $filteredList[str_replace('php@', '', $value)] = $value;
+        }
+
+        return $filteredList;
     }
 }
