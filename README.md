@@ -14,3 +14,5 @@ The Local environment plugin for cdev
 ## Development
 
  - Sub folder for Apache: This is for website which are generally setup using composer where the main entrypoint (index.php file) to the application exists inside a subfolder and not directly inside the src folder. 
+
+ - Mysql Has gone away error (add `max_allowed_packet=64M`) to `/usr/local/etc/my.cnf`
