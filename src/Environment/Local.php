@@ -94,6 +94,7 @@ class Local extends Environment
         
         $path = $this->_input->getOption('path');
         $this->_apache->nuke($this->_config);
+        $this->_mysql->nuke($path, $this->_config);
     }
 
     public function status()
@@ -103,7 +104,6 @@ class Local extends Environment
 
     public function cleanup()
     {
-        // TODO: Maybe do a removal of the hosts config here.
         $this->displayInstallationMessage();
     }
 
@@ -115,7 +115,8 @@ class Local extends Environment
     public function dbConnect()
     {
         $this->logTitle('Connecting to database...');
-        $this->displayInstallationMessage();
+        $path = $this->_input->getOption('path');
+        $this->_mysql->connectToDb($path, $this->_config);
     }
 
     public function runCommand(array $command = array(), $elevatePermissions = false)

@@ -65,6 +65,27 @@ class MySql extends Command {
     }
 
     /**
+     * Drops the database for the current environment.
+     *
+     * @param Creode\Cdev\Config $config
+     */
+    public function nuke($path, $config) {
+        $projectName = $this->_configHelper->getProjectName($config);
+        $this->runExternalCommand('mysql -u root -p -e "DROP DATABASE IF EXISTS ' . $projectName . '"', [], $path);
+    }
+
+    /**
+     * Connects to the projects database via terminal.
+     *
+     * @param string $projectName
+     *    Name of project/database to connect to.
+     */
+    public function connectToDb($path, $config) {
+        $projectName = $this->_configHelper->getProjectName($config);
+        $this->runExternalCommand('mysql -u root -p ' . $projectName, [], $path);
+    }
+
+    /**
      * Checks if mysql is currently installed.
      *
      * @return string
