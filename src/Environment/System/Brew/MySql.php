@@ -36,7 +36,6 @@ class MySql extends Command {
         $installed = $this->mysqlIsInstalled();
 
         if (!$installed) {
-            // TODO: at some point I'd like to trigger an installation command.
             throw new \Exception('Cannot find ' . $this::COMMAND . ' command! Please install using required method.');
         }
         
@@ -152,8 +151,8 @@ class MySql extends Command {
         }
 
         // Runs through and imports them.
-        foreach ($files as $file_path) {
-            $this->importDatabaseFile($file_path, $projectName);
+        foreach ($files as $filePath) {
+            $this->importDatabaseFile($filePath, $projectName);
         }
     }
 
@@ -192,7 +191,7 @@ class MySql extends Command {
      * @param string $projectName
      *    Name of project/database to import to.
      */
-    private function importDatabaseFile($file_path, $projectName) {
+    private function importDatabaseFile($filePath, $projectName) {
         // Check if PV is installed.
         $process = new Process(['which', 'pv']);
         $process->run();
@@ -203,11 +202,10 @@ class MySql extends Command {
         }
 
         // If pv not installed then output a nice message and run a regular import.
-        $main_command = "pv $file_path | mysql -u root -p " . $projectName;
+        $main_command = "pv $filePath | mysql -u root -p " . $projectName;
         if (!$pv_support) {
-            // TODO: Find a nicer way of outputting this.
-            echo "PV support has not been found. In order to get progress reports of import process please install it using `brew install pv`\n";
-            $main_command = 'mysql -u root -p ' . $projectName . ' < ' . $file_path;
+            echo ">>> PV support has not been found. In order to get progress reports of import process please install it using `brew install pv`\n";
+            $main_command = 'mysql -u root -p ' . $projectName . ' < ' . $filePath;
         }
 
         // Write sql command to import.

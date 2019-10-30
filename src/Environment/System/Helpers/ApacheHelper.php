@@ -83,7 +83,6 @@ class ApacheHelper {
         $exists = false;
         while ($item = $root->getItem('section', 'VirtualHost', null, null, $i++)) {
             // Find out if we need to use this.
-            // TODO: At some point I may want to check the hostname instead but this is fine for now.
             foreach ($item->children as $child) {
                 if ($child->name == 'DocumentRoot' && $child->content === $filePath) {
                     $exists = true;
