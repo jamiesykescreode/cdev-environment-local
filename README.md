@@ -7,13 +7,13 @@ With the last AMPPS update being over a year ago and the latest supported PHP ve
 
 The CDev Local environment plugin aims to help this by using the existing local modules Apache, PHP and MariaDB (a mysql drop in replacement). It aims to improve the workflow however due to the nature of it there are a number of very in depth dependencies required in order to get it to work.
 
-##Installing
+## Installing
 
 You can install the plugin with:
 
 `cdev plugin:install cdev/environment-local`
 
-##Dependencies
+## Dependencies
 
 The following dependencies are required in order to get CDev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
 
@@ -25,7 +25,7 @@ Here is a list of the requirements in order to get CDev Local running:
  - [DNSMasq](https://app.tettra.co/teams/creodechat/pages/cdev-local-dnsmasq)
  - [PV (Optional)](https://app.tettra.co/teams/creodechat/pages/cdev-local-pv)
 
-##Configuration
+## Configuration
 
 Once the above dependencies have been installed correctly and the plugin has been installed via the *Installing* section above you can run the cdev configure command inside the directory you are setting up. This should now show a `local` plugin alongside the docker one. You can follow the steps as normal with a few extra options:
 
@@ -34,7 +34,7 @@ Once the above dependencies have been installed correctly and the plugin has bee
 
 The rest of the process is similar and cdev local will setup a new apache host in the following format `[project_name].dev.com`.
 
-##Troubleshooting
+## Troubleshooting
 
 Whilst working on this and doing a database import originally I got a `MySQL has gone away` error. In order to fix this you can do the following: 
 
