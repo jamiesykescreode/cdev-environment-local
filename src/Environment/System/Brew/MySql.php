@@ -49,7 +49,7 @@ class MySql extends Command {
             $this->createDatabase($path, $projectName);
 
             // Trigger database imports.
-            $this->importDatabase($projectName);
+            $this->importDatabase($path, $projectName);
         }
     }
 
@@ -79,6 +79,8 @@ class MySql extends Command {
     /**
      * Connects to the projects database via terminal.
      *
+     * @param string $path
+     *    Path to check.
      * @param string $projectName
      *    Name of project/database to connect to.
      */
@@ -145,11 +147,13 @@ class MySql extends Command {
     /**
      * Imports database.
      * 
+     * @param string $path
+     *    Path to current directory.
      * @param string $projectName
      *    Name of the project/database to use on import.
      */
-    private function importDatabase($projectName) {
-        if (!$files = $this->loadSqlFiles()) {
+    private function importDatabase($path, $projectName) {
+        if (!$files = $this->loadSqlFiles($path)) {
             return false;
         }
 
@@ -162,20 +166,26 @@ class MySql extends Command {
     /**
      * Loads in all sql files required in alphabetical order.
      *
+     * @param string $path
+     *    Path to current directory.
      * @return string[]
      *    List of paths to sql files.
      */
-    private function loadSqlFiles() {
+    private function loadSqlFiles($path) {
         // Load all the files from the db folder.
         $finder = new Finder();
+        $file_paths = [];
 
-        $finder->files()->in(getcwd() . '/db')->name('/\.sql$/');
+        if (!is_dir($path . '/db')) {
+            return $file_paths;
+        }
+
+        $finder->files()->in($path . '/db')->name('/\.sql$/');
 
         if (!$finder->hasResults()) {
             return false;
         }
-
-        $file_paths = [];
+        
         foreach ($finder as $file) {
             $file_paths[] = $file->getRealPath();
         }
