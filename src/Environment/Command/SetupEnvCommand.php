@@ -147,8 +147,11 @@ class SetupEnvCommand extends ConfigurationCommand
         $phpVersions = $this->getAvailablePHPVersions();
 
         $default = $this->_config['config']['local']['php-version'];
+
+        $keys = array_keys($phpVersions);
+        $fallback = end($keys);
         $question = new ChoiceQuestion(
-            '<question>Please select version of PHP for this site.</question> : [Current: <info>' . (isset($default) ? $default : end(array_keys($phpVersions))) . '</info>]',
+            '<question>Please select version of PHP for this site.</question> : [Current: <info>' . (isset($default) ? $default : $fallback) . '</info>]',
             $phpVersions,
             $default
         );
