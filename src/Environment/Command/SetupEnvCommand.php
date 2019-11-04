@@ -10,11 +10,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Finder\Finder;
 
 class SetupEnvCommand extends ConfigurationCommand
 {
@@ -158,25 +158,47 @@ class SetupEnvCommand extends ConfigurationCommand
 
         $this->_config['config']['local']['php-version'] = $helper->ask($this->_input, $this->_output, $question);
 
+        $finder = new Finder();
+        $path = $this->_input->getOption('path');
+
+        $src = $this->_config['config']['dir']['src'];
+        $file_path = $path . '/' . $src;
+
+        if (!is_dir($file_path)) {
+            $file_path = $path;
+        }
+
+        $finder->directories()->in($file_path);
+        $finder->depth('== 0');
+
+        $files = [];
+        $files['None'] = 'No subfolder';
+
+        if ($finder->hasResults()) {
+            foreach ($finder as $folder) {
+                $path = $folder->getRelativePathname();
+                $files[$path] = $path;
+            }
+        }
+
         $default = $this->_config['config']['local']['apache-subpath'];
-        $question = new Question(
-            '<question>Subfolder for Apache i.e. "web"</question> : [Current: <info>' . (isset($default) ? $default : '') . '</info>]',
+        $question = new ChoiceQuestion(
+            '<question>Subfolder for Apache i.e. "web"</question>: [Current: <info> ' . (isset($default) ? $default : 'None') . '</info>]',
+            $files,
             $default
         );
 
         $question->setValidator(function ($value) {
-            if (!filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+            if ($value == 'None') {
                 return null;
             }
-            
+
             return $value;
         });
 
         $this->_config['config']['local']['apache-subpath'] = $helper->ask($this->_input, $this->_output, $question);
-
-        if ($this->_usingLocalBuilds) {
-            $this->composerInit();
-        }
+        
+        $this->isUsingLocalBuilds();
     }
 
     /**
@@ -212,6 +234,12 @@ class SetupEnvCommand extends ConfigurationCommand
         $this->_output->writeln('<info>Running composer install</info>');
 
         $this->_composer->install($path);
+    }
+
+    private function isUsingLocalBuilds() {
+        if ($this->_usingLocalBuilds) {
+            $this->composerInit();
+        }
     }
 
     private function getAvailablePHPVersions() {
