@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "pear/config": "dev-trunk"
+        "pear/config": "dev-trunk",
+        "symfony/finder": "^3.3"
     },
     "autoload": {
         "psr-4": {
