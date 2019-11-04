@@ -75,9 +75,6 @@ class ApacheHelper {
     public function siteConfigExists($hostname) {
         $this->loadApacheConfigFile($this->configPath);
 
-        // Converts file path into doc path.
-        // $hostname = '"' . $hostname . '"';
-
         $root = $this->_root_node;
 
         $i = 0;
