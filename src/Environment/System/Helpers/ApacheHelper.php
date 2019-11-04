@@ -67,16 +67,13 @@ class ApacheHelper {
      * Checks if the site configuration already exists inside the
      * apache hosts configuration.
      *
-     * @param string $path
-     *    Path to site.
+     * @param string $hostname
+     *    Hostname of the site.
      * @return bool
      *    Returns true if configuration site exists for site.
      */
-    public function siteConfigExists($path) {
+    public function siteConfigExists($hostname) {
         $this->loadApacheConfigFile($this->configPath);
-
-        // Converts file path into doc path.
-        $filePath = '"' . $path . '"';
 
         $root = $this->_root_node;
 
@@ -85,7 +82,7 @@ class ApacheHelper {
         while ($item = $root->getItem('section', 'VirtualHost', null, null, $i++)) {
             // Find out if we need to use this.
             foreach ($item->children as $child) {
-                if ($child->name == 'DocumentRoot' && $child->content === $filePath) {
+                if ($child->name == 'ServerName' && $child->content === $hostname) {
                     $exists = true;
                 }
             }
