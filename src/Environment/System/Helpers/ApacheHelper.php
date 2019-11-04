@@ -67,8 +67,8 @@ class ApacheHelper {
      * Checks if the site configuration already exists inside the
      * apache hosts configuration.
      *
-     * @param string $path
-     *    Path to site.
+     * @param string $hostname
+     *    Hostname of the site.
      * @return bool
      *    Returns true if configuration site exists for site.
      */
