@@ -164,22 +164,21 @@ class SetupEnvCommand extends ConfigurationCommand
         $src = $this->_config['config']['dir']['src'];
         $file_path = $path . '/' . $src;
 
-        var_dump(is_dir($file_path));
-
         if (!is_dir($file_path)) {
-            $this->isUsingLocalBuilds();
-            return;
+            $file_path = $path;
         }
 
-        $finder->directories()->in($path . '/' . $src);
+        $finder->directories()->in($file_path);
         $finder->depth('== 0');
 
         $files = [];
         $files['None'] = 'No subfolder';
-            
-        foreach ($finder as $folder) {
-            $path = $folder->getRelativePathname();
-            $files[$path] = $path;
+
+        if ($finder->hasResults()) {
+            foreach ($finder as $folder) {
+                $path = $folder->getRelativePathname();
+                $files[$path] = $path;
+            }
         }
 
         $default = $this->_config['config']['local']['apache-subpath'];
@@ -199,7 +198,6 @@ class SetupEnvCommand extends ConfigurationCommand
 
         $this->_config['config']['local']['apache-subpath'] = $helper->ask($this->_input, $this->_output, $question);
         
-
         $this->isUsingLocalBuilds();
     }
 
