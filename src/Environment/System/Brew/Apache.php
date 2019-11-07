@@ -48,7 +48,7 @@ class Apache extends Command {
 
         // Check if host exists.
         if (!$this->_apache->siteConfigExists($hostname)) {
-            echo '>>> Adding a new configuration for `'. $hostname . '` inside `' . $this->_apache->configPath . '`.';
+            echo '>>> Adding a new configuration for `'. $hostname . '` inside `' . $this->_apache->configPath . "`.\n";
             $this->_apache->addHost($hostname, $path, $config);
         }
     }

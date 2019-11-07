@@ -73,7 +73,8 @@ class MySql extends Command {
      */
     public function nuke($path, Config $config) {
         $projectName = $this->_configHelper->getProjectName($config);
-        $this->runExternalCommand('mysql -u root -p -e "DROP DATABASE IF EXISTS ' . $projectName . '"', [], $path);
+        $dbName = trim(substr($this->slugify($projectName), 0, 64));
+        $this->runExternalCommand('mysql -u root -p -e "DROP DATABASE IF EXISTS ' . $dbName . '"', [], $path);
     }
 
     /**
@@ -141,6 +142,8 @@ class MySql extends Command {
      *    Name of database to create.
      */
     private function createDatabase($path, $dbName) {
+        // Slugify the project name, set max length to 64 and trim any extra space.
+        $dbName = trim(substr($this->slugify($dbName), 0, 64));
         $this->runExternalCommand('mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ' . $dbName . '"', [], $path);
     }
 
@@ -249,7 +252,7 @@ class MySql extends Command {
         $text = trim($text, '-');
 
         // remove duplicate -
-        $text = preg_replace('~-+~', '-', $text);
+        $text = preg_replace('~-+~', '_', $text);
 
         // lowercase
         $text = strtolower($text);
