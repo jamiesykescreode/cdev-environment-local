@@ -58,7 +58,8 @@ class Apache extends Command {
      */
     public function start($path, $config) {
         $this->initialise($path, $config);
-        $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
+
+        $this->triggerConfigurationUpdate($path, $config);
     }
 
     /**
@@ -77,5 +78,25 @@ class Apache extends Command {
      */
     public function nuke($path, Config $config) {
         $this->stop($path, $config);
+    }
+
+    /**
+     * Applies configuration change by either starting or restarting.
+     * Because there is no current way of checking if apache is running via
+     * commandline I am stopping it and starting it. These may result in an error
+     * if running but this can be disregarded.
+     *
+     * @param string $path
+     *    Path to project.
+     * @param Creode\Cdev\Config $config
+     *    Cdev Configuration object.
+     */
+    private function triggerConfigurationUpdate($path, Config $config) {
+        // Restarts since apache may have already been started at this point.
+        $hostname = $this->_configHelper->getHostname($config);
+        echo '>>> Ensuring that the configuration has been applied for `' . $hostname . '`';
+
+        $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'stop'], $path);
+        $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
     }
 }
