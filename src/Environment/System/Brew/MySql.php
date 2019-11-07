@@ -49,7 +49,7 @@ class MySql extends Command {
             $this->createDatabase($path, $projectName);
 
             // Trigger database imports.
-            $this->importDatabase($path, $projectName);
+            $this->importDatabase($path, $projectName, $config);
         }
     }
 
@@ -152,8 +152,8 @@ class MySql extends Command {
      * @param string $projectName
      *    Name of the project/database to use on import.
      */
-    private function importDatabase($path, $projectName) {
-        if (!$files = $this->loadSqlFiles($path)) {
+    private function importDatabase($path, $projectName, $config) {
+        if (!$files = $this->loadSqlFiles($path, $config)) {
             return false;
         }
 
@@ -168,22 +168,29 @@ class MySql extends Command {
      *
      * @param string $path
      *    Path to current directory.
+     * @param Creode\Cdev\Config $config
+     *    Cdev Config file.
      * @return string[]
      *    List of paths to sql files.
      */
-    private function loadSqlFiles($path) {
+    private function loadSqlFiles($path, Config $config) {
         // Load all the files from the db folder.
         $finder = new Finder();
         $file_paths = [];
 
-        if (!is_dir($path . '/db')) {
+        $db_dir = 'db';
+        if ($config->get('storage') && isset($config->get('storage')['db-dir'])) {
+            $db_dir = $config->get('storage')['db-dir'];
+        }
+
+        if (!is_dir($path . '/' . $db_dir)) {
             return $file_paths;
         }
 
-        $finder->files()->in($path . '/db')->name('/\.sql$/');
+        $finder->files()->in($path . '/' . $db_dir)->name('/\.sql$/');
 
         if (!$finder->hasResults()) {
-            return false;
+            return $file_paths;
         }
         
         foreach ($finder as $file) {

@@ -69,7 +69,7 @@ class Apache extends Command {
     {
         $hostname = $this->_configHelper->getHostname($config);
 
-        echo '>>> Removing host configuration for `' . $hostname . '`';
+        echo '>>> Removing host configuration for `' . $hostname . "`\n";
         $this->_apache->removeHost($this->_configHelper->getHostname($config));
     }
 
@@ -94,7 +94,7 @@ class Apache extends Command {
     private function triggerConfigurationUpdate($path, Config $config) {
         // Restarts since apache may have already been started at this point.
         $hostname = $this->_configHelper->getHostname($config);
-        echo '>>> Ensuring that the configuration has been applied for `' . $hostname . '`';
+        echo '>>> Ensuring that the configuration has been applied for `' . $hostname . "`\n";
 
         $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'stop'], $path);
         $this->runExternalCommand('sudo ' . $this::COMMAND, ['-k', 'start'], $path);
