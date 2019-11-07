@@ -221,6 +221,9 @@ class MySql extends Command {
             $pv_support = true;
         }
 
+        // Slugify the project name, set max length to 64 and trim any extra space.
+        $valid_project_name = trim(substr($this->slugify($projectName), 0, 64));
+
         // If pv not installed then output a nice message and run a regular import.
         $main_command = "pv $filePath | mysql -u root -p " . $projectName;
         if (!$pv_support) {
@@ -230,5 +233,31 @@ class MySql extends Command {
 
         // Write sql command to import.
         $this->runExternalCommand($main_command, [], getcwd());
+    }
+
+    private function slugify($text) {
+        // replace non letter or digits by -
+        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, '-');
+
+        // remove duplicate -
+        $text = preg_replace('~-+~', '-', $text);
+
+        // lowercase
+        $text = strtolower($text);
+
+        if (empty($text)) {
+            return 'n-a';
+        }
+
+        return $text;
     }
 }
