@@ -225,10 +225,10 @@ class MySql extends Command {
         $valid_project_name = trim(substr($this->slugify($projectName), 0, 64));
 
         // If pv not installed then output a nice message and run a regular import.
-        $main_command = "pv $filePath | mysql -u root -p " . $projectName;
+        $main_command = "pv $filePath | mysql -u root -p " . $valid_project_name;
         if (!$pv_support) {
             echo ">>> PV support has not been found. In order to get progress reports of import process please install it using `brew install pv`\n";
-            $main_command = 'mysql -u root -p ' . $projectName . ' < ' . $filePath;
+            $main_command = 'mysql -u root -p ' . $valid_project_name . ' < ' . $filePath;
         }
 
         // Write sql command to import.
