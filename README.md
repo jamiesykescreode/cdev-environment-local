@@ -39,6 +39,6 @@ The rest of the process is similar and cdev local will setup a new apache host i
 Whilst working on this and doing a database import originally I got a `MySQL has gone away` error. In order to fix this you can do the following: 
 
 - `nano /usr/local/etc/my.cnf`
-- Add `max_allowed_packet=64M`
+- Add `max_allowed_packet=64M` under a [mysqld] header
 
 On AMPPS I had this setting set to 256M but 64 seemed to solve it for my particular environment.
