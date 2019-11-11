@@ -42,14 +42,16 @@ class MySql extends Command {
         
         // Check if the database for the project exists.
         $projectName = $this->_configHelper->getProjectName($config);
-        $databaseExists = $this->databaseExists($projectName);
+
+        $dbName = trim(substr($this->slugify($projectName), 0, 64));
+        $databaseExists = $this->databaseExists($dbName);
 
         // If it doesn't then create it and import from the dbs folder.
         if (!$databaseExists) {
-            $this->createDatabase($path, $projectName);
+            $this->createDatabase($path, $dbName);
 
             // Trigger database imports.
-            $this->importDatabase($path, $projectName, $config);
+            $this->importDatabase($path, $dbName, $config);
         }
     }
 
@@ -87,7 +89,9 @@ class MySql extends Command {
      */
     public function connectToDb($path, $config) {
         $projectName = $this->_configHelper->getProjectName($config);
-        $this->runExternalCommand('mysql -u root -p ' . $projectName, [], $path);
+        
+        $dbName = trim(substr($this->slugify($projectName), 0, 64));
+        $this->runExternalCommand('mysql -u root -p ' . $dbName, [], $path);
     }
 
     /**
