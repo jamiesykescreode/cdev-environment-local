@@ -120,17 +120,19 @@ class MySql extends Command {
      */
     private function databaseExists($dbName) {
         // Find if database exists.
-        $p = new Process('mysql -u root -p -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'$DB_NAME\'"');
-        $p->run(null, ['$DB_NAME' => $dbName]);
+        echo ">>> Checking if database already exists. Please enter mysql root password.\n";
+
+        $p = new Process('mysql -u root -p -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'' . $dbName . '\'"');
+        $p->run(null, []);
 
         if (!$p->isSuccessful()) {
             throw new ProcessFailedException($p);
         }
         
         $exists = trim($p->getOutput());
-
+        
         $databaseExists = false;
-        if ($exists && strpos($exists, $dbName)) {
+        if ($exists && strpos($exists, $dbName) !== FALSE) {
             $databaseExists = true;
         }
 
