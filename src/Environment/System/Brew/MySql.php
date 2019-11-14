@@ -120,7 +120,7 @@ class MySql extends Command {
      */
     private function databaseExists($dbName) {
         // Find if database exists.
-        $p = new Process('mysqlshow | grep -w "$DB_NAME"');
+        $p = new Process('mysql -u root -p -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'$DB_NAME\'"');
         $p->run(null, ['$DB_NAME' => $dbName]);
 
         if (!$p->isSuccessful()) {
