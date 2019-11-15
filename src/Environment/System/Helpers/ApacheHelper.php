@@ -39,7 +39,7 @@ class ApacheHelper {
      * List of dependencies required to run.
      * @var string[]
      */
-    public const MODULE_DEPENDENCIES = [
+    const MODULE_DEPENDENCIES = [
         'proxy_module',
         'proxy_http_module',
         'proxy_fcgi_module'
