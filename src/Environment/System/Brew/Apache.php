@@ -56,7 +56,7 @@ class Apache extends Command {
     /**
      * {@inheritdoc}
      */
-    public function start($path, $config) {
+    public function start($path, Config $config) {
         $this->initialise($path, $config);
 
         $this->triggerConfigurationUpdate($path, $config);

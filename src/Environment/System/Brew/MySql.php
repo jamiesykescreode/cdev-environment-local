@@ -58,7 +58,7 @@ class MySql extends Command {
     /**
      * {@inheritdoc}
      */
-    public function start($path, $config) {
+    public function start($path, Config $config) {
         $this->initialise($path, $config);
         $this->runExternalCommand('brew', ['services', 'start', $this::BREW_COMMAND], $path);
     }
@@ -66,7 +66,7 @@ class MySql extends Command {
     /**
      * {@inheritdoc}
      */
-    public function stop($path, $config) {
+    public function stop($path, Config $config) {
         $this->notSupported();
     }
 

@@ -9,9 +9,15 @@ The CDev Local environment plugin aims to help this by using the existing local 
 
 ## Installing
 
-You can install the plugin with:
+Ensure that you are using the most recent version of cdev or at the very least >= 1.1.16.
+
+You can install the plugin with the two commands below:
+
+`cdev plugin:add-repository pear/config vcs https://github.com/FelixAuer/Config.git`
 
 `cdev plugin:install cdev/environment-local`
+
+The first command allows a dependency for cdev local to be installed and the second allows for the actual plugin to be installed.
 
 ## Dependencies
 
@@ -19,6 +25,7 @@ The following dependencies are required in order to get CDev Local to run proper
 
 Here is a list of the requirements in order to get CDev Local running:
 
+ - [CDEV](https://github.com/garethmidwood/cdev) >=1.1.16 (allows plugin:add-repository command)
  - [Apache](https://app.tettra.co/teams/creodechat/pages/cdev-local-apache)
  - [PHP](https://app.tettra.co/teams/creodechat/pages/cdev-local-php)
  - [MySQL/MariaDB](https://app.tettra.co/teams/creodechat/pages/cdev-local-mysql)
