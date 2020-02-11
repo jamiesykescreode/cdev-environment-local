@@ -24,7 +24,7 @@ The first command allows a dependency for cdev local to be installed and the sec
 The plugin ships with an `install.sh` script that should get you up and running with the above, 
 
 ```
-sh ~/.cdev/plugins/Users/garethmidwood/sites/cdev-environment-local/install.sh 
+sh ~/.cdev/plugins/vendor/cdev/environment-local/install.sh 
 ```
 
 The following dependencies are required in order to get cdev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
