@@ -32,7 +32,7 @@ mkdir -p $apache_docroot
 echo 'Adding sample index.html to new docroot'
 echo "<h1>My User Web Root</h1>" > $apache_docroot/index.html
 
-echo "Updating docroot"
+echo "Updating docroot to $apache_docroot"
 sudo sed -i -e 's,DocumentRoot "/usr/local/var/www",DocumentRoot "'$apache_docroot'",g' /usr/local/etc/httpd/httpd.conf
 sudo sed -i -e 's,Directory "/usr/local/var/www",Directory "'$apache_docroot'",g' /usr/local/etc/httpd/httpd.conf
 

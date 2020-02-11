@@ -5,7 +5,7 @@ Over the past few months we have had some hiccups with Docker and memory usage e
 
 With the last AMPPS update being over a year ago and the latest supported PHP version being 7.1 it's difficult to test certain sites fully as some newer sites are currently using PHP 7.2.
 
-The CDev Local environment plugin aims to help this by using the existing local modules Apache, PHP and MariaDB (a mysql drop in replacement). It aims to improve the workflow however due to the nature of it there are a number of very in depth dependencies required in order to get it to work.
+The cdev Local environment plugin aims to help this by using the existing local modules Apache, PHP and MariaDB (a mysql drop in replacement). It aims to improve the workflow however due to the nature of it there are a number of very in depth dependencies required in order to get it to work.
 
 ## Installing
 
@@ -21,11 +21,17 @@ The first command allows a dependency for cdev local to be installed and the sec
 
 ## Dependencies
 
-The following dependencies are required in order to get CDev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
+The plugin ships with an `install.sh` script that should get you up and running with the above, 
 
-Here is a list of the requirements in order to get CDev Local running:
+```
+sh ~/.cdev/plugins/Users/garethmidwood/sites/cdev-environment-local/install.sh 
+```
 
- - [CDEV](https://github.com/garethmidwood/cdev) >=1.1.16 (allows plugin:add-repository command)
+The following dependencies are required in order to get cdev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
+
+Here is a list of the requirements in order to get cdev Local running:
+
+ - [cdev](https://github.com/garethmidwood/cdev) >=1.1.16 (allows plugin:add-repository command)
  - [Apache](https://app.tettra.co/teams/creodechat/pages/cdev-local-apache)
  - [PHP](https://app.tettra.co/teams/creodechat/pages/cdev-local-php)
  - [MySQL/MariaDB](https://app.tettra.co/teams/creodechat/pages/cdev-local-mysql)
