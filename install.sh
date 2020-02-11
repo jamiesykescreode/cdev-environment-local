@@ -67,6 +67,21 @@ sudo sed -i -e 's,Group _www,Group staff,g' /usr/local/etc/httpd/httpd.conf
 echo 'Setting servername to localhost'
 sudo sed -i -e 's,#ServerName www.example.com:8080,ServerName localhost,g' /usr/local/etc/httpd/httpd.conf
 
+echo 'Adding extra vhost for localhost'
+grep -q "ServerName localhost" /usr/local/etc/httpd/extra/httpd-vhosts.conf
+
+if [ $? == 1 ]
+then
+    echo 'ServerName localhost vhost not found, adding'
+    sudo tee -a /usr/local/etc/httpd/httpd.conf > /dev/null <<EOT
+
+<VirtualHost *:80>
+  DocumentRoot "$apache_docroot"
+  ServerName localhost
+</VirtualHost>
+EOT
+fi
+
 echo 'Restarting apache'
 sudo apachectl -k restart
 
@@ -99,8 +114,6 @@ sudo sed -i -e 's,;date.timezone =,date.timezone = UTC,g' /usr/local/etc/php/7.3
 echo 'for php 7.4'
 sudo sed -i -e 's,;date.timezone =,date.timezone = UTC,g' /usr/local/etc/php/7.4/php.ini
 
-echo 'Switching to PHP 7.3'
-brew unlink php@5.6 php@7.0 php@7.1 php@7.2 && brew link --force --overwrite php@7.3
 
 echo 'Adding LoadModule statements in httpd.conf'
 
