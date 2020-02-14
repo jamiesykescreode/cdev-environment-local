@@ -97,6 +97,9 @@ echo '======================='
 echo 'Tapping exolnet/homebrew-deprecated'
 brew tap exolnet/homebrew-deprecated
 
+echo 'Installing old openssl for deprecated PHP versions'
+brew install https://github.com/tebelorg/Tump/releases/download/v1.0.0/openssl.rb
+
 echo 'Installing all the phpses'
 brew install php@5.6 php@7.0 php@7.1 php@7.2 php@7.3 php@7.4
 
