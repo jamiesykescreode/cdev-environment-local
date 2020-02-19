@@ -1,11 +1,8 @@
 # cdev-environment-local
-The Local environment plugin for cdev
+The Local environment plugin for cdev on mac
 
-Over the past few months we have had some hiccups with Docker and memory usage etc causing some strange issues. Environments have also been very slow to run lately.
-
-With the last AMPPS update being over a year ago and the latest supported PHP version being 7.1 it's difficult to test certain sites fully as some newer sites are currently using PHP 7.2.
-
-The CDev Local environment plugin aims to help this by using the existing local modules Apache, PHP and MariaDB (a mysql drop in replacement). It aims to improve the workflow however due to the nature of it there are a number of very in depth dependencies required in order to get it to work.
+The cdev Local environment plugin uses the existing local modules Apache, PHP and MariaDB (a mysql drop in replacement).
+Due to the nature of the setup there are a number of very in depth dependencies required in order to get it to work.
 
 ## Installing
 
@@ -19,13 +16,19 @@ You can install the plugin with the two commands below:
 
 The first command allows a dependency for cdev local to be installed and the second allows for the actual plugin to be installed.
 
+When you have the plugin installed you can install the dependencies with the bundled script, just run
+
+```
+sh ~/.cdev/plugins/vendor/cdev/environment-local/install.sh
+```
+
 ## Dependencies
 
-The following dependencies are required in order to get CDev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
+The following dependencies are required in order to get cdev Local to run properly. The plugin is still in early stages at the moment with a number of features absent but the basics of running your dev environment are available (starting, stopping and nuking, and database imports).
 
-Here is a list of the requirements in order to get CDev Local running:
+Here is a list of the requirements in order to get cdev Local running:
 
- - [CDEV](https://github.com/garethmidwood/cdev) >=1.1.16 (allows plugin:add-repository command)
+ - [cdev](https://github.com/garethmidwood/cdev) >=1.1.16 (allows plugin:add-repository command)
  - [Apache](https://app.tettra.co/teams/creodechat/pages/cdev-local-apache)
  - [PHP](https://app.tettra.co/teams/creodechat/pages/cdev-local-php)
  - [MySQL/MariaDB](https://app.tettra.co/teams/creodechat/pages/cdev-local-mysql)
