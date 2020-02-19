@@ -22,6 +22,13 @@ class ApacheHelper {
     public $configPath = '/usr/local/etc/httpd/extra/httpd-vhosts.conf';
 
     /**
+     * Path to cdev-local logs directory
+     * 
+     * @var string
+     */
+    public $logPath = '/tmp/cdev-local/logs/';
+
+    /**
      * Parsed Apache Config File
      *
      * @var Config
@@ -119,6 +126,15 @@ class ApacheHelper {
         $vhost->createDirective('DocumentRoot',  '"' . $path . '"');
         $vhost->createDirective('ServerName', $hostname);
         $vhost->createDirective('ProxyPassMatch', $listenLine);
+
+        $logPath = $this->logPath . $hostname;
+
+        if (!mkdir($logPath, 0755, true)) {
+            throw new \RuntimeException('Could not create apache log dir ' . $logPath);
+        }
+
+        $vhost->createDirective('ErrorLog', $logPath . '/error.log');
+        $vhost->createDirective('CustomLog', $logPath . '/access.log combined');
 
         // Write the file.
         $this->_configuration->writeConfig($this->configPath, 'apache');
