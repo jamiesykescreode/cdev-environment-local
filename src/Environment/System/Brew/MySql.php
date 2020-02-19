@@ -188,9 +188,6 @@ class MySql extends Command {
         $file_paths = [];
 
         $db_dir = 'db';
-        if ($config->get('storage') && isset($config->get('storage')['db-dir'])) {
-            $db_dir = $config->get('storage')['db-dir'];
-        }
 
         if (!is_dir($path . '/' . $db_dir)) {
             return $file_paths;
