@@ -25,7 +25,11 @@ class SetupEnvCommand extends ConfigurationCommand
                 'package' => null,
                 'php-version' => null,
                 'apache-subpath' => null,
-            ]
+            ],
+            'dir' => [
+                'src' => null,
+                'wrapper-repo' => null
+            ],
         ]
     ];
 
