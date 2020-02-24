@@ -1,4 +1,5 @@
 commands:
- - cdev.local_setup
+ - cdev-local.local_setup
+ - cdev-local.install_dependencies
 environments:
  - \Cdev\Local\Environment\Local

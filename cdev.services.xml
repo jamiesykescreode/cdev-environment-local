@@ -6,10 +6,13 @@
     <services>
 
         <!-- Command classes -->
-        <service id="cdev.local_setup" class="Cdev\Local\Environment\Command\SetupEnvCommand">
+        <service id="cdev-local.local_setup" class="Cdev\Local\Environment\Command\SetupEnvCommand">
             <argument type="service" id="environment.type.local" />
             <argument type="service" id="cdev.system_composer" />
             <argument type="service" id="symfony.filesystem" />
+        </service>
+
+        <service id="cdev-local.install_dependencies" class="Cdev\Local\Environment\Command\InstallDependenciesCommand">
         </service>
 
 
