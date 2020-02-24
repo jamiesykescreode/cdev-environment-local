@@ -12,6 +12,9 @@
             <argument type="service" id="symfony.filesystem" />
         </service>
 
+        <service id="cdev-local.install_dependencies" class="Cdev\Local\Cdev\Command\InstallDependenciesCommand">
+        </service>
+
 
         <!-- Environments -->
         <service id="environment.type.local" class="Cdev\Local\Environment\Local">
