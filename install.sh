@@ -206,6 +206,13 @@ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.php@7.2.plist
 launchctl load ~/Library/LaunchAgents/homebrew.mxcl.php@7.3.plist
 launchctl load ~/Library/LaunchAgents/homebrew.mxcl.php@7.4.plist
 
+echo "Restarting PHP versions to ensure configuration is populated"
+brew services restart php@5.6
+brew services restart php@7.0
+brew services restart php@7.1
+brew services restart php@7.2
+brew services restart php@7.3
+brew services restart php@7.4
 
 echo '======================='
 echo '==== PHP STEPS END ===='
