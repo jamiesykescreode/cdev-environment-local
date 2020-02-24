@@ -226,6 +226,12 @@ echo '======================='
 echo 'Installing mariadb'
 brew install mariadb
 
+echo 'Ensuring mysql config folder exists'
+if [ ! -d "/usr/local/etc/my.cnf.d" ]
+then
+    mkdir /usr/local/etc/my.cnf.d
+fi
+
 echo 'Starting mariadb'
 brew services start mariadb
 
