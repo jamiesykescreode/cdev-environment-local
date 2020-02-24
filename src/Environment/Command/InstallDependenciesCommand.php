@@ -1,6 +1,6 @@
 <?php
 
-namespace Cdev\Local\Cdev\Command;
+namespace Cdev\Local\Environment\Command;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InstallDependenciesCommand extends Command {
     protected function configure()
     {
-        $this->setName('local:setup-dependencies');
+        $this->setName('env:setup-dependencies');
         $this->setHidden(false);
         $this->setDescription('Sets up the local environment dependencies');
     }
