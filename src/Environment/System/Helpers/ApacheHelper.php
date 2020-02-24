@@ -129,7 +129,7 @@ class ApacheHelper {
 
         $logPath = $this->logPath . $hostname;
 
-        if (!mkdir($logPath, 0755, true)) {
+        if (!file_exists($logPath) && !mkdir($logPath, 0755, true)) {
             throw new \RuntimeException('Could not create apache log dir ' . $logPath);
         }
 
